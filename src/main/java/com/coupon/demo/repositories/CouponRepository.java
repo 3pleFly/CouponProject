@@ -13,9 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 public interface CouponRepository extends JpaRepository<Coupon,Long> {
 
     @Modifying
-    @Transactional
-    @Query(value = "delete from customers_vs_coupons where coupons_id in ( select coupons_id " +
+    @Query(value = "delete from customers_vs_coupons where coupons_id in (select coupons_id " +
             "from" +
-            " coupons where company_id = ?1 )", nativeQuery = true)
-    void deleteFromCvC(Long id);
+            " coupons where company_id = ?1)", nativeQuery = true)
+    void deleteFromCvCByCompanyId(Long id);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM customers_vs_coupons WHERE coupons_id = ?1", nativeQuery = true)
+    void deleteFromCvCByCouponId(Long id);
 }

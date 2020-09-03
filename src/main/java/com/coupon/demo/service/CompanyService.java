@@ -8,6 +8,7 @@ import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -58,11 +59,12 @@ public class CompanyService extends ClientService {
         return couponRepository.save(coupon);
     }
 
+    @Transactional
     public void deleteCoupon(Long couponId) {
         if (isLoggedIn == false) {
             throw new LoginFailed("Admin is not logged in");
         }
-        couponRepository.deleteById(couponId);
+        couponRepository.deleteFromCvCByCouponId(couponId);
     }
 
 //    public List<Coupon> getCompanyCoupons(Coupon coupon) {

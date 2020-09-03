@@ -9,8 +9,8 @@ import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -61,6 +61,7 @@ public class AdminService extends ClientService {
         return companyRepository.save(company);
     }
 
+    @Transactional
     public void deleteCompany(Long companyId) {
         if (isLoggedIn == false) {
             throw new LoginFailed("Admin is not logged in");
@@ -73,8 +74,6 @@ public class AdminService extends ClientService {
                });
            });
         });
-
-
         companyRepository.deleteById(companyId);
     }
 

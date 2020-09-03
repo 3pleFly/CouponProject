@@ -43,8 +43,7 @@ public class DemoApplication {
         CompanyRepository companyRepository = context.getBean(CompanyRepository.class);
         adminFacade.login("admin@admin.com", "admin");
 
-        couponRepository.deleteFromCvC(7L);
-
+        couponRepository.deleteFromCvCByCouponId(26L);
 //
 //    adminFacade.deleteCompany(6L);
 
@@ -54,19 +53,30 @@ public class DemoApplication {
 ///////////////////
 ///* CREATE COUPON */
 //
-//        String title = "title4";
-//        String description = "description";
-//        LocalDate startdate = LocalDate.now();
-//        LocalDate endDate = LocalDate.now();
-//        int amount = 1;
-//        double price = 29.99;
-//        String image = "image";
-//        Category category = categoryRepository.findById(1L).get();
-//        Company oneCompany = adminFacade.getOneCompany(7L);
 //
-//        Coupon coupon = new Coupon(category,oneCompany,title,description,startdate,endDate,amount
-//                ,price,image);
-//        couponRepository.save(coupon);
+//        int i = 0;
+//        System.out.println(
+//                "hey"
+//        );
+//        while(i < 10) {
+//            System.out.println("hey?");
+//            String title = "title4" +i;
+//            String description = "description";
+//            LocalDate startdate = LocalDate.now();
+//            LocalDate endDate = LocalDate.now();
+//            int amount = 1;
+//            double price = 29.99;
+//            String image = "image";
+//            Category category = categoryRepository.findById(1L).get();
+//            Company oneCompany = adminFacade.getOneCompany(7L);
+//
+//            Coupon coupon = new Coupon(category,oneCompany,title,description,startdate,endDate,amount
+//                    ,price,image);
+//            couponRepository.save(coupon);
+//
+//            i++;
+//        }
+
 
 //        //////////////////////
 //        /* CREATE CUSTOMER */
@@ -88,11 +98,11 @@ public class DemoApplication {
 //        //////////////////////
 //        /* GIVE CUSTOMER A COUPON */
 //        Customer customer = customerRepository.findById(5L).get();
-//        customer.getCoupons().add(couponRepository.findById(19L).get());
-//        customer.getCoupons().add(couponRepository.findById(20L).get());
-//        customer.getCoupons().add(couponRepository.findById(21L).get());
-//        customer.getCoupons().add(couponRepository.findById(17L).get());
-//        customer.getCoupons().add(couponRepository.findById(22L).get());
+//        customer.getCoupons().add(couponRepository.findById(25L).get());
+//        customer.getCoupons().add(couponRepository.findById(26L).get());
+//        customer.getCoupons().add(couponRepository.findById(27L).get());
+//        customer.getCoupons().add(couponRepository.findById(28L).get());
+//        customer.getCoupons().add(couponRepository.findById(29L).get());
 //        customerRepository.save(customer);
 
     }
