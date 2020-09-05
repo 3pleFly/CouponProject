@@ -7,6 +7,8 @@ import com.coupon.demo.exception.LoginFailed;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.repositories.CustomerRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,7 @@ import java.util.List;
 @Service
 public class AdminService extends ClientService {
 
+//    Logger logger = LoggerFactory.getLogger(AdminService.class);
     CompanyRepository companyRepository;
     CustomerRepository customerRepository;
     CouponRepository couponRepository;
@@ -38,6 +41,7 @@ public class AdminService extends ClientService {
     public boolean login(String email, String password) {
         if (email == "admin@admin.com" && password == "admin") {
             isLoggedIn = true;
+
         } else {
             throw new LoginFailed("Admin login failed!");
         }

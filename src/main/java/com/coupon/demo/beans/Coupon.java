@@ -20,12 +20,13 @@ public class Coupon {
     @Column(name = "id", updatable = false)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "company_id", updatable = false)
+    @ToString.Exclude
     private Company company;
 
     @Column(name = "title", length = 30)
@@ -50,6 +51,7 @@ public class Coupon {
     private String image;
 
     @ManyToMany(mappedBy = "coupons", fetch = FetchType.EAGER)
+    @ToString.Exclude
     private List<Customer> customer;
 
 

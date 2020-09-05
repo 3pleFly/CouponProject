@@ -1,20 +1,21 @@
 package com.coupon.demo;
 
-import com.coupon.demo.beans.Category;
-import com.coupon.demo.beans.Company;
-import com.coupon.demo.beans.Coupon;
-import com.coupon.demo.beans.Customer;
+import com.coupon.demo.beans.*;
 import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.repositories.CustomerRepository;
 import com.coupon.demo.service.AdminService;
 import com.coupon.demo.service.CompanyService;
+import com.coupon.demo.service.CustomerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @SpringBootApplication
@@ -31,22 +32,38 @@ public class DemoApplication {
 
     //HOw to do logger?
     //changing the column length parameter is not updating MYSQL table...
+
+
+    //Can I use company/customer instead of LoggedIn boolean?
+    //ClientService field injection or constructor injection? How?
+    // TODO: Change everything to Objects instead of primitives.
     public static void main(String[] args) {
+        Logger logger = LoggerFactory.getLogger(AdminService.class);
 
         ConfigurableApplicationContext context = SpringApplication.run(DemoApplication.class, args);
 
         AdminService adminFacade = context.getBean(AdminService.class);
         CompanyService companyFacade = context.getBean(CompanyService.class);
+        CustomerService customerService = context.getBean(CustomerService.class);
         CategoryRepository categoryRepository = context.getBean(CategoryRepository.class);
         CouponRepository couponRepository = context.getBean(CouponRepository.class);
         CustomerRepository customerRepository = context.getBean(CustomerRepository.class);
         CompanyRepository companyRepository = context.getBean(CompanyRepository.class);
-        adminFacade.login("admin@admin.com", "admin");
 
-        couponRepository.deleteFromCvCByCouponId(26L);
+        adminFacade.login("admin@admin.com", "admin");
+        customerService.login("a","a");
+
+        List<Coupon> customerCoupons =
+                customerService.getCustomerCoupons(categoryRepository.findById(1L).get());
+
+        logger.info(customerCoupons.toString());
+
+//        customerService.purchaseCoupon(couponRepository.findById(22L).get());
+//        logger.info(customerService.getCustomerDetails().toString());
+
+//        couponRepository.deleteFromCvCByCouponId(26L);
 //
 //    adminFacade.deleteCompany(6L);
-
 
 
 
