@@ -21,30 +21,17 @@ public class AdminService extends ClientService {
 
     public boolean isLoggedIn = false;
 
-    public AdminService() {
-    }
-    private CouponRepository couponRepository;
-    private CompanyRepository companyRepository;
-    private CustomerRepository customerRepository;
-    private CategoryRepository categoryRepository;
+    private  CouponRepository couponRepository;
+    private  CompanyRepository companyRepository;
+    private  CustomerRepository customerRepository;
+    private  CategoryRepository categoryRepository;
 
-    @Autowired
-    public void setCouponRepository(CouponRepository couponRepository) {
+    public AdminService(CouponRepository couponRepository, CompanyRepository companyRepository,
+    CustomerRepository customerRepository,
+    CategoryRepository categoryRepository) {
         this.couponRepository = couponRepository;
-    }
-
-    @Autowired
-    public void setCompanyRepository(CompanyRepository companyRepository) {
         this.companyRepository = companyRepository;
-    }
-
-    @Autowired
-    public void setCustomerRepository(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
-    }
-
-    @Autowired
-    public void setCategoryRepository(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 
