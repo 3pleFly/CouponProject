@@ -5,9 +5,7 @@ import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.repositories.CustomerRepository;
-import com.coupon.demo.service.AdminService;
-import com.coupon.demo.service.CompanyService;
-import com.coupon.demo.service.CustomerService;
+import com.coupon.demo.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -37,26 +35,42 @@ public class DemoApplication {
     //Can I use company/customer instead of LoggedIn boolean?
     //ClientService field injection or constructor injection? How?
     // TODO: Change everything to Objects instead of primitives.
+    //TODO: Change isLoggedIn to private instead of public...
     public static void main(String[] args) {
         Logger logger = LoggerFactory.getLogger(AdminService.class);
 
         ConfigurableApplicationContext context = SpringApplication.run(DemoApplication.class, args);
 
-        AdminService adminFacade = context.getBean(AdminService.class);
-        CompanyService companyFacade = context.getBean(CompanyService.class);
-        CustomerService customerService = context.getBean(CustomerService.class);
         CategoryRepository categoryRepository = context.getBean(CategoryRepository.class);
         CouponRepository couponRepository = context.getBean(CouponRepository.class);
         CustomerRepository customerRepository = context.getBean(CustomerRepository.class);
         CompanyRepository companyRepository = context.getBean(CompanyRepository.class);
 
-        adminFacade.login("admin@admin.com", "admin");
-        customerService.login("a","a");
 
-        List<Coupon> customerCoupons =
-                customerService.getCustomerCoupons(categoryRepository.findById(1L).get());
+        LoginManager loginManager = LoginManager.getInstance();
 
-        logger.info(customerCoupons.toString());
+
+
+
+        AdminService adminService = (AdminService) loginManager.login("admin@admin.com", "admin",
+                ClientType.Administrator);
+
+        CompanyService companyService = (CompanyService) loginManager.login("h", "h",
+                ClientType.Company);
+
+
+        CustomerService customerService = (CustomerService) loginManager.login("a", "a",
+                ClientType.Customer);
+
+
+
+
+        logger.info("Admin login: " + String.valueOf(adminService.isLoggedIn));
+        logger.info("Company login: " + String.valueOf(companyService.isLoggedIn));
+        logger.info("Customer login: " + String.valueOf(customerService.isLoggedIn));
+
+
+
 
 //        customerService.purchaseCoupon(couponRepository.findById(22L).get());
 //        logger.info(customerService.getCustomerDetails().toString());

@@ -4,6 +4,7 @@ import com.coupon.demo.beans.Company;
 import com.coupon.demo.beans.Customer;
 import com.coupon.demo.exception.AlreadyExists;
 import com.coupon.demo.exception.LoginFailed;
+import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.repositories.CustomerRepository;
@@ -18,30 +19,39 @@ import java.util.List;
 @Service
 public class AdminService extends ClientService {
 
-//    Logger logger = LoggerFactory.getLogger(AdminService.class);
-    CompanyRepository companyRepository;
-    CustomerRepository customerRepository;
-    CouponRepository couponRepository;
+    public boolean isLoggedIn = false;
+
+    public AdminService() {
+    }
+    private CouponRepository couponRepository;
+    private CompanyRepository companyRepository;
+    private CustomerRepository customerRepository;
+    private CategoryRepository categoryRepository;
 
     @Autowired
-    public AdminService(CompanyRepository companyRepository,
-                        CustomerRepository customerRepository,
-                        CouponRepository couponRepository) {
-        this.companyRepository = companyRepository;
-        this.customerRepository = customerRepository;
+    public void setCouponRepository(CouponRepository couponRepository) {
         this.couponRepository = couponRepository;
     }
 
-    private boolean isLoggedIn = false;
+    @Autowired
+    public void setCompanyRepository(CompanyRepository companyRepository) {
+        this.companyRepository = companyRepository;
+    }
 
-    public AdminService() {
+    @Autowired
+    public void setCustomerRepository(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
+    }
+
+    @Autowired
+    public void setCategoryRepository(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
     public boolean login(String email, String password) {
         if (email == "admin@admin.com" && password == "admin") {
             isLoggedIn = true;
-
         } else {
             throw new LoginFailed("Admin login failed!");
         }

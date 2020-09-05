@@ -4,38 +4,61 @@ import com.coupon.demo.beans.Category;
 import com.coupon.demo.beans.Company;
 import com.coupon.demo.beans.Coupon;
 import com.coupon.demo.exception.LoginFailed;
+import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.repositories.CustomerRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CompanyService extends ClientService {
 
-    CompanyRepository companyRepository;
-    CustomerRepository customerRepository;
-    CouponRepository couponRepository;
+    public boolean isLoggedIn = false;
+    Logger logger = LoggerFactory.getLogger(AdminService.class);
     private Company company;
-    private boolean isLoggedIn = false;
-    @Autowired
-    public CompanyService(CompanyRepository companyRepository,
-                          CustomerRepository customerRepository,
-                          CouponRepository couponRepository) {
-        this.companyRepository = companyRepository;
-        this.customerRepository = customerRepository;
-        this.couponRepository = couponRepository;
-    }
 
     public CompanyService() {
     }
 
+    private CouponRepository couponRepository;
+    private CompanyRepository companyRepository;
+    private CustomerRepository customerRepository;
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    public void setCouponRepository(CouponRepository couponRepository) {
+        this.couponRepository = couponRepository;
+    }
+
+    @Autowired
+    public void setCompanyRepository(CompanyRepository companyRepository) {
+        this.companyRepository = companyRepository;
+    }
+
+    @Autowired
+    public void setCustomerRepository(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
+    }
+
+    @Autowired
+    public void setCategoryRepository(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
+
     @Override
     public boolean login(String email, String password) {
+
+        Optional<Company> byId = companyRepository.findById(7L);
+        logger.info(byId.get().toString());
+
         if (companyRepository.existsByEmailAndPassword(email, password)) {
             isLoggedIn = true;
             company = companyRepository.findByEmailAndPassword(email, password);

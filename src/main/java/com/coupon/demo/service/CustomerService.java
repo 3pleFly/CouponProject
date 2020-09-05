@@ -4,6 +4,7 @@ import com.coupon.demo.beans.Category;
 import com.coupon.demo.beans.Coupon;
 import com.coupon.demo.beans.Customer;
 import com.coupon.demo.exception.LoginFailed;
+import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.repositories.CustomerRepository;
@@ -19,20 +20,35 @@ public class CustomerService extends ClientService {
 
     Logger logger = LoggerFactory.getLogger(CustomerService.class);
 
-    CompanyRepository companyRepository;
-    CustomerRepository customerRepository;
-    CouponRepository couponRepository;
-
-    private boolean isLoggedIn = false;
+    public boolean isLoggedIn = false;
     private Customer customer;
 
+    public CustomerService() {
+    }
+
+    private CouponRepository couponRepository;
+    private CompanyRepository companyRepository;
+    private CustomerRepository customerRepository;
+    private CategoryRepository categoryRepository;
+
     @Autowired
-    public CustomerService(CompanyRepository companyRepository,
-                           CustomerRepository customerRepository,
-                           CouponRepository couponRepository) {
-        this.companyRepository = companyRepository;
-        this.customerRepository = customerRepository;
+    public void setCouponRepository(CouponRepository couponRepository) {
         this.couponRepository = couponRepository;
+    }
+
+    @Autowired
+    public void setCompanyRepository(CompanyRepository companyRepository) {
+        this.companyRepository = companyRepository;
+    }
+
+    @Autowired
+    public void setCustomerRepository(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
+    }
+
+    @Autowired
+    public void setCategoryRepository(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
