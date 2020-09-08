@@ -8,6 +8,9 @@ import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.repositories.CustomerRepository;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,20 +22,14 @@ import java.util.List;
 @Service
 public class AdminService extends ClientService {
 
-    public boolean isLoggedIn = false;
+    private boolean isLoggedIn = false;
 
-    private  CouponRepository couponRepository;
-    private  CompanyRepository companyRepository;
-    private  CustomerRepository customerRepository;
-    private  CategoryRepository categoryRepository;
-
-    public AdminService(CouponRepository couponRepository, CompanyRepository companyRepository,
-    CustomerRepository customerRepository,
-    CategoryRepository categoryRepository) {
-        this.couponRepository = couponRepository;
+    @Autowired
+    public AdminService(CompanyRepository companyRepository,
+                        CustomerRepository customerRepository, CouponRepository couponRepository) {
         this.companyRepository = companyRepository;
         this.customerRepository = customerRepository;
-        this.categoryRepository = categoryRepository;
+        this.couponRepository = couponRepository;
     }
 
     @Override
@@ -46,11 +43,8 @@ public class AdminService extends ClientService {
     }
 
     public Company addCompany(Company company) {
-        if (isLoggedIn == false) {
+        if (!isLoggedIn) {
             throw new LoginFailed("Admin is not logged in");
-        }
-        if (companyRepository.existsByNameOrEmail(company.getName(), company.getEmail())) {
-            throw new AlreadyExists("AdminFacade: Company name/email already exists..." + company.getName() + " " + company.getEmail());
         }
         return companyRepository.save(company);
     }
@@ -63,23 +57,17 @@ public class AdminService extends ClientService {
     }
 
     @Transactional
-    public void deleteCompany(Long companyId) {
+    public void deleteCompany(Company company) {
         if (isLoggedIn == false) {
             throw new LoginFailed("Admin is not logged in");
         }
-        companyRepository.findById(companyId).ifPresent(company -> {
-           company.getCoupons().forEach(coupon -> {
-               coupon.getCustomer().forEach(customer -> {
-                   customer.getCoupons().remove(coupon);
-                   customerRepository.save(customer);
-               });
-           });
-        });
-        companyRepository.deleteById(companyId);
+        couponRepository.deleteFromCvCByCompanyId(company.getId());
+        couponRepository.deleteByCompany(company);
+        companyRepository.delete(company);
     }
 
-    public List<Company> getAllCompanies(Company company) {
-        if (isLoggedIn == false) {
+    public List<Company> getAllCompanies() {
+        if (!isLoggedIn) {
             throw new LoginFailed("Admin is not logged in");
         }
         return companyRepository.findAll();
@@ -113,7 +101,7 @@ public class AdminService extends ClientService {
         customerRepository.deleteById(customerId);
     }
 
-    public List<Customer> getAllCustomers(Customer customer) {
+    public List<Customer> getAllCustomers() {
         if (isLoggedIn == false) {
             throw new LoginFailed("Admin is not logged in");
         }

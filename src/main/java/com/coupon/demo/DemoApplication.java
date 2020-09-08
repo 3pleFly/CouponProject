@@ -8,17 +8,20 @@ import com.coupon.demo.repositories.CustomerRepository;
 import com.coupon.demo.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
 @SpringBootApplication
 public class DemoApplication {
 
+    //Can I inject repositories in services only once? Omer?
 
     // Inside adminFacade, in updateCompany, I have to check that the company code/name is not
     // being updated, since this is handled by the MYSQL entity conditions, do I need to catch an
@@ -35,51 +38,10 @@ public class DemoApplication {
     //Can I use company/customer instead of LoggedIn boolean?
     //ClientService field injection or constructor injection? How?
     // TODO: Change everything to Objects instead of primitives.
-    //TODO: Change isLoggedIn to private instead of public...
     public static void main(String[] args) {
-        Logger logger = LoggerFactory.getLogger(AdminService.class);
+        Logger logger = LoggerFactory.getLogger("main logger");
 
         ConfigurableApplicationContext context = SpringApplication.run(DemoApplication.class, args);
-
-        CategoryRepository categoryRepository = context.getBean(CategoryRepository.class);
-        CouponRepository couponRepository = context.getBean(CouponRepository.class);
-        CustomerRepository customerRepository = context.getBean(CustomerRepository.class);
-        CompanyRepository companyRepository = context.getBean(CompanyRepository.class);
-
-
-        LoginManager loginManager = LoginManager.getInstance();
-
-
-
-
-        AdminService adminService = (AdminService) loginManager.login("admin@admin.com", "admin",
-                ClientType.Administrator);
-
-        CompanyService companyService = (CompanyService) loginManager.login("h", "h",
-                ClientType.Company);
-
-
-        CustomerService customerService = (CustomerService) loginManager.login("a", "a",
-                ClientType.Customer);
-
-
-
-
-        logger.info("Admin login: " + String.valueOf(adminService.isLoggedIn));
-        logger.info("Company login: " + String.valueOf(companyService.isLoggedIn));
-        logger.info("Customer login: " + String.valueOf(customerService.isLoggedIn));
-
-
-
-
-//        customerService.purchaseCoupon(couponRepository.findById(22L).get());
-//        logger.info(customerService.getCustomerDetails().toString());
-
-//        couponRepository.deleteFromCvCByCouponId(26L);
-//
-//    adminFacade.deleteCompany(6L);
-
-
 
 ///////////////////
 ///* CREATE COUPON */
@@ -101,7 +63,8 @@ public class DemoApplication {
 //            Category category = categoryRepository.findById(1L).get();
 //            Company oneCompany = adminFacade.getOneCompany(7L);
 //
-//            Coupon coupon = new Coupon(category,oneCompany,title,description,startdate,endDate,amount
+//            Coupon coupon = new Coupon(category,oneCompany,title,description,startdate,endDate,
+//            amount
 //                    ,price,image);
 //            couponRepository.save(coupon);
 //
@@ -135,7 +98,6 @@ public class DemoApplication {
 //        customer.getCoupons().add(couponRepository.findById(28L).get());
 //        customer.getCoupons().add(couponRepository.findById(29L).get());
 //        customerRepository.save(customer);
-
     }
 
 

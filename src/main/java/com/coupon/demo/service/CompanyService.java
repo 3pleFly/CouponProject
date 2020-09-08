@@ -8,6 +8,9 @@ import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.repositories.CustomerRepository;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,33 +21,27 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 public class CompanyService extends ClientService {
 
-    public boolean isLoggedIn = false;
-    Logger logger = LoggerFactory.getLogger(AdminService.class);
+    private boolean isLoggedIn = false;
+
+    private Logger logger = LoggerFactory.getLogger("CompanyService Logger");
     private Company company;
 
-    private  CouponRepository couponRepository;
-    private  CompanyRepository companyRepository;
-    private  CustomerRepository customerRepository;
-    private  CategoryRepository categoryRepository;
-
-    public CompanyService(CouponRepository couponRepository, CompanyRepository companyRepository,
-                           CustomerRepository customerRepository,
-                           CategoryRepository categoryRepository) {
-        this.couponRepository = couponRepository;
-        this.companyRepository = companyRepository;
-        this.customerRepository = customerRepository;
+    @Autowired
+    public CompanyService(CategoryRepository categoryRepository,
+                          CompanyRepository companyRepository, CouponRepository couponRepository,
+                          CustomerRepository customerRepository) {
         this.categoryRepository = categoryRepository;
+        this.companyRepository = companyRepository;
+        this.couponRepository = couponRepository;
+        this.customerRepository = customerRepository;
     }
 
     @Override
     public boolean login(String email, String password) {
-
-        Optional<Company> byId = companyRepository.findById(7L);
-        logger.info(byId.get().toString());
-
         if (companyRepository.existsByEmailAndPassword(email, password)) {
             isLoggedIn = true;
             company = companyRepository.findByEmailAndPassword(email, password);
@@ -55,50 +52,56 @@ public class CompanyService extends ClientService {
     }
 
 
-    public Coupon addCoupon(Coupon coupon) {
+    public void addCoupon(Coupon coupon) {
         if (isLoggedIn == false) {
-            throw new LoginFailed("Admin is not logged in");
+            throw new LoginFailed("Company is not logged in");
         }
-        return couponRepository.save(coupon);
+        couponRepository.save(coupon);
+        updateCompany();
     }
 
     public Coupon updateCoupon(Coupon coupon) {
         if (isLoggedIn == false) {
-            throw new LoginFailed("Admin is not logged in");
+            throw new LoginFailed("Company is not logged in");
         }
         return couponRepository.save(coupon);
     }
 
     @Transactional
-    public void deleteCoupon(Long couponId) {
+    public void deleteCoupon(Coupon coupon) {
         if (isLoggedIn == false) {
-            throw new LoginFailed("Admin is not logged in");
+            throw new LoginFailed("Company is not logged in");
         }
-        couponRepository.deleteFromCvCByCouponId(couponId);
+        couponRepository.deleteFromCvCByCouponId(coupon.getId());
+        couponRepository.delete(coupon);
     }
 
     public List<Coupon> getCompanyCoupons() {
         if (isLoggedIn == false) {
-            throw new LoginFailed("Admin is not logged in");
+            throw new LoginFailed("Company is not logged in");
         }
         return couponRepository.findAllByCompany(company);
     }
 
     public List<Coupon> getCompanyCoupons(Category category) {
         if (isLoggedIn == false) {
-            throw new LoginFailed("Admin is not logged in");
+            throw new LoginFailed("Company is not logged in");
         }
         return couponRepository.findAllByCompanyAndCategory(company, category);
     }
 
     public List<Coupon> getCompanyCoupons(double maxPrice) {
         if (isLoggedIn == false) {
-            throw new LoginFailed("Admin is not logged in");
+            throw new LoginFailed("Company is not logged in");
         }
         return couponRepository.findAllByCompanyAndMaxPrice(company, maxPrice);
     }
 
     public Company getCompanyDetails() {
         return companyRepository.findById(company.getId()).get();
+    }
+
+    private Company updateCompany() {
+        return company = companyRepository.findById(company.getId()).get();
     }
 }

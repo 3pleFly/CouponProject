@@ -1,7 +1,7 @@
 package com.coupon.demo.exception;
 
-public class CouponNotAvailable extends RuntimeException {
-    public CouponNotAvailable(String message) {
+public class CouponExpired extends RuntimeException {
+    public CouponExpired(String message) {
         super(message);
     }
 }

@@ -1,7 +1,7 @@
 package com.coupon.demo.exception;
 
-public class AlreadyExists extends RuntimeException {
-    public AlreadyExists(String message) {
+public class CouponNotAvailable extends RuntimeException {
+    public CouponNotAvailable(String message) {
         super(message);
     }
 }

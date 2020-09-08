@@ -5,6 +5,7 @@ import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.repositories.CustomerRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -12,57 +13,42 @@ import org.springframework.stereotype.Service;
 @Service
 public class LoginManager {
 
-    public static LoginManager instance = null;
-    private static CouponRepository couponRepository;
-    private static CompanyRepository companyRepository;
-    private static CustomerRepository customerRepository;
-    private static CategoryRepository categoryRepository;
+    private AdminService adminService;
+    private CompanyService companyService;
+    private CustomerService customerService;
 
-    @Autowired
-    public LoginManager(CouponRepository couponRepository, CompanyRepository companyRepository,
-                        CustomerRepository customerRepository,
-                        CategoryRepository categoryRepository) {
-        this.couponRepository = couponRepository;
-        this.companyRepository = companyRepository;
-        this.customerRepository = customerRepository;
-        this.categoryRepository = categoryRepository;
+    public LoginManager() {
     }
 
-    public static LoginManager getInstance() {
-        if (instance == null) {
-            instance = new LoginManager(couponRepository, companyRepository, customerRepository, categoryRepository);
-        }
-        return instance;
+    @Autowired
+    public void setAdminService(AdminService adminService) {
+        this.adminService = adminService;
+    }
+
+    @Autowired
+    public void setCompanyService(CompanyService companyService) {
+        this.companyService = companyService;
+    }
+
+    @Autowired
+    public void setCustomerService(CustomerService customerService) {
+        this.customerService = customerService;
     }
 
     public ClientService login(String email, String password, ClientType clientType) {
-        ClientService client;
         switch (clientType) {
             case Administrator:
-                client = new AdminService(couponRepository, companyRepository, customerRepository, categoryRepository);
-                if (client.login(email, password)) {
-                    return client;
-                }
-                break;
+                adminService.login(email, password);
+                return adminService;
 
             case Company:
-                client = new CompanyService(couponRepository, companyRepository, customerRepository, categoryRepository);
-                if (client.login(email, password)) {
-                    return client;
-                }
-                break;
+                companyService.login(email, password);
+                return companyService;
 
             case Customer:
-                client = new CustomerService(couponRepository, companyRepository, customerRepository, categoryRepository);
-                if (client.login(email, password)) {
-                    return client;
-                }
-                break;
+                customerService.login(email, password);
+                return customerService;
         }
-
-
-        return null;
-
+        throw new RuntimeException("Login manager failed");
     }
-
 }
