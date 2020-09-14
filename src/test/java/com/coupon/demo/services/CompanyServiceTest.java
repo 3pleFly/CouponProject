@@ -26,70 +26,97 @@ class CompanyServiceTest {
     @Autowired
     private CompanyService companyService;
     @Autowired
-    private AdminService adminService;
-    @Autowired
     private CategoryRepository categoryRepository;
-    @Autowired
-    private CouponRepository couponRepository;
-
 
     @Test
     void login() {
-        companyService.login("4new@email.com", "password");
+        try {
+            companyService.login("new@email.com", "password");
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
     }
 
     @Test
     void addCoupon() {
-        login();
-        coupon = createCoupon();
-        companyService.addCoupon(coupon);
-        logger.info("addCoupon Test");
+        try {
+            login();
+            coupon = createCoupon();
+            companyService.addCoupon(coupon);
+            logger.info("addCoupon Test");
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
     }
 
     @Test
     void updateCoupon() {
-        login();
-        coupon = companyService.getCompanyCoupons().get(0);
-        coupon.setPrice(coupon.getPrice() * 2);
-        companyService.updateCoupon(coupon);
-        logger.info("updateCoupon Test");
+        try {
+            login();
+            coupon = companyService.getCompanyCoupons().get(0);
+            coupon.setPrice(coupon.getPrice() * 2);
+            companyService.updateCoupon(coupon);
+            logger.info("updateCoupon Test");
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
     }
 
     @Test
     void deleteCoupon() {
-        login();
-        coupon = companyService.getCompanyCoupons().get(0);
-        System.out.println(coupon);
-        companyService.deleteCoupon(coupon);
+        try {
+            login();
+            coupon = companyService.getCompanyCoupons().get(0);
+            companyService.deleteCoupon(coupon);
+            logger.info("deleteCoupon Test");
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
     }
 
     @Test
     void getCompanyCoupons() {
-        login();
-        companyService.getCompanyCoupons().forEach(System.out::println);
-        logger.info("getCompanyCoupons Test");
+        try {
+            login();
+            companyService.getCompanyCoupons().forEach(System.out::println);
+            logger.info("getCompanyCoupons Test");
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
     }
 
     @Test
     void getCompanyCouponsByCategory() {
-        login();
-        Category category = categoryRepository.findById(1L).get();
-        companyService.getCompanyCoupons(category).forEach(System.out::println);
-        logger.info("getCompanyCouponsByCategory Test");
+        try {
+            login();
+            Category category = categoryRepository.findById(1L).get();
+            companyService.getCompanyCoupons(category).forEach(System.out::println);
+            logger.info("getCompanyCouponsByCategory Test");
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
     }
 
     @Test
     void getCompanyCouponsByMaxPrice() {
-        login();
-        companyService.getCompanyCoupons(49.99).forEach(System.out::println);
-        logger.info("getCompanyCouponsByMaxPrice Test");
+        try {
+            login();
+            companyService.getCompanyCoupons(49.99).forEach(System.out::println);
+            logger.info("getCompanyCouponsByMaxPrice Test");
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
     }
 
     @Test
     void getCompanyDetails() {
-        login();
-        System.out.println(companyService.getCompanyDetails());
-        logger.info("getCompanyDetails Test");
+        try {
+            login();
+            System.out.println(companyService.getCompanyDetails());
+            logger.info("getCompanyDetails Test");
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
     }
 
     private Coupon createCoupon() {

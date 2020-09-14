@@ -7,7 +7,6 @@ import com.coupon.demo.beans.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,11 +16,12 @@ import java.util.List;
 public interface CouponRepository extends JpaRepository<Coupon, Long> {
 
     @Modifying
-    @Query(value = "delete from customers_vs_coupons where coupons_id in (select coupons_id " +
-            "from" +
-            " coupons where company_id = ?1)", nativeQuery = true)
+    @Query(value = "delete cvc from customers_vs_coupons cvc join coupons c on cvc.coupons_id=c.id" +
+            " where c.company_id=?1", nativeQuery = true)
     void deleteFromCvCByCompanyId(Long id);
 
+    @Modifying
+    @Transactional
     @Query(value = "delete from customers_vs_coupons where coupons_id = ?1", nativeQuery = true)
     void deleteFromCvCByCouponId(Long id);
 

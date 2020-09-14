@@ -11,9 +11,3 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
 
   port: 7070
-
-
-
-  h2:
-    console:
-      enabled: true

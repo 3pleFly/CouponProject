@@ -38,11 +38,12 @@ class CustomerServiceTest {
     void purchaseCoupon() {
         try {
             login();
-            coupon = couponRepository.findById(3L).get();
+            coupon = couponRepository.findById(2L).get();
             customerService.purchaseCoupon(coupon);
             logger.info("purchaseCoupon Test");
         } catch (Exception e) {
             logger.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 

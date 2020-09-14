@@ -13,7 +13,8 @@ import java.util.Objects;
 @Setter
 @ToString
 @Entity
-@Table(name = "coupons", uniqueConstraints = {@UniqueConstraint(columnNames = {"id" , "title"})})
+@Table(name = "coupons", uniqueConstraints = {@UniqueConstraint(columnNames = {"company_id" ,
+        "title"})})
 public class Coupon {
 
     @Id

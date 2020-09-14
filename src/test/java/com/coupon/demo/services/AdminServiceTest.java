@@ -1,5 +1,7 @@
 package com.coupon.demo.services;
 
+import com.coupon.demo.beans.Category;
+import com.coupon.demo.beans.CategoryType;
 import com.coupon.demo.beans.Company;
 import com.coupon.demo.beans.Customer;
 import com.coupon.demo.service.AdminService;
@@ -15,14 +17,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class AdminServiceTest {
 
-    private Logger logger = LoggerFactory.getLogger("AdminServiceTest Logger");
 
     @Autowired
     private AdminService adminService;
 
+    private final Logger logger = LoggerFactory.getLogger("AdminServiceTest Logger");
     private Company company;
     private Customer customer;
-
 
     @Test
     void login() {
@@ -32,7 +33,6 @@ class AdminServiceTest {
             logger.error(e.getMessage());
         }
     }
-
 
     @Test
     void addCompany() {
@@ -44,7 +44,6 @@ class AdminServiceTest {
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-
     }
 
     @Test
@@ -64,12 +63,10 @@ class AdminServiceTest {
     void deleteCompany() {
         try {
             login();
-            company = adminService.getOneCompany(3L);
-            adminService.deleteCompany(company);
+            adminService.deleteCompany(2L);
             logger.info("deleteCompany Test");
         } catch (Exception e) {
             logger.error(e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -94,7 +91,6 @@ class AdminServiceTest {
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-
     }
 
     @Test
@@ -113,26 +109,24 @@ class AdminServiceTest {
     void updateCustomer() {
         try {
             login();
-            customer = adminService.getOneCustomer(customer.getId());
+            customer = adminService.getOneCustomer(1L);
+            customer.setFirstName("Updated Name");
             adminService.updateCustomer(customer);
             logger.info("updateCustomer Test");
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-
     }
 
     @Test
     void deleteCustomer() {
         try {
             login();
-            customer = adminService.getOneCustomer(customer.getId());
-            adminService.deleteCustomer(customer.getId());
+            adminService.deleteCustomer(1L);
             logger.info("deleteCustomer Test");
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-
     }
 
     @Test
@@ -145,7 +139,6 @@ class AdminServiceTest {
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-
     }
 
 
@@ -153,10 +146,23 @@ class AdminServiceTest {
     void getOneCustomer() {
         try {
             login();
-            System.out.println(adminService.getOneCustomer(7L).toString());
+            System.out.println(adminService.getOneCustomer(2L).toString());
             logger.info("getOneCustomer Test");
         } catch (Exception e) {
             logger.error(e.getMessage());
+        }
+    }
+
+    @Test
+    void addCategory() {
+        try {
+            login();
+            Category category = new Category(CategoryType.SWIMMING);
+            adminService.addCategory(category);
+            logger.info("addCategory Test");
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 }

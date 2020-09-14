@@ -8,26 +8,18 @@ import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.repositories.CustomerRepository;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
-import java.util.Optional;
 
-
+@ToString
 @Service
 public class CompanyService extends ClientService {
 
     private boolean isLoggedIn = false;
-
-    private Logger logger = LoggerFactory.getLogger("CompanyService Logger");
+    @ToString.Exclude
     private Company company;
 
     @Autowired
@@ -69,7 +61,7 @@ public class CompanyService extends ClientService {
 
     @Transactional
     public void deleteCoupon(Coupon coupon) {
-        if (isLoggedIn == false) {
+        if (!isLoggedIn) {
             throw new LoginFailed("Company is not logged in");
         }
         couponRepository.deleteFromCvCByCouponId(coupon.getId());
@@ -77,31 +69,37 @@ public class CompanyService extends ClientService {
     }
 
     public List<Coupon> getCompanyCoupons() {
-        if (isLoggedIn == false) {
+        if (!isLoggedIn) {
             throw new LoginFailed("Company is not logged in");
         }
         return couponRepository.findAllByCompany(company);
     }
 
     public List<Coupon> getCompanyCoupons(Category category) {
-        if (isLoggedIn == false) {
+        if (!isLoggedIn) {
             throw new LoginFailed("Company is not logged in");
         }
         return couponRepository.findAllByCompanyAndCategory(company, category);
     }
 
     public List<Coupon> getCompanyCoupons(double maxPrice) {
-        if (isLoggedIn == false) {
+        if (!isLoggedIn) {
             throw new LoginFailed("Company is not logged in");
         }
         return couponRepository.findAllByCompanyAndMaxPrice(company, maxPrice);
     }
 
     public Company getCompanyDetails() {
+        if (!isLoggedIn) {
+            throw new LoginFailed("Company is not logged in");
+        }
         return companyRepository.findById(company.getId()).get();
     }
 
     private Company updateCompany() {
+        if (!isLoggedIn) {
+            throw new LoginFailed("Company is not logged in");
+        }
         return company = companyRepository.findById(company.getId()).get();
     }
 }
