@@ -1,4 +1,10 @@
 package com.coupon.demo.facade;
 
-public class ClientFacade {
+import org.springframework.stereotype.Component;
+
+@Component
+public abstract class ClientFacade {
+
+    public abstract boolean login(String email, String password);
+
 }

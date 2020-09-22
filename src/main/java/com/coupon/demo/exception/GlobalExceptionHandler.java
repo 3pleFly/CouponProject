@@ -40,6 +40,12 @@ public class GlobalExceptionHandler {
                         "Internal database error");
         }
     }
+
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<Object> handleRunTimeExceptions(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ex.getMessage());
+    }
 }
 
 

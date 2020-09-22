@@ -5,6 +5,7 @@ import com.coupon.demo.beans.Customer;
 import com.coupon.demo.dtobeans.CustomerDTO;
 import com.coupon.demo.dtobeans.Login;
 import com.coupon.demo.dtobeans.CompanyDTO;
+import com.coupon.demo.facade.AdminFacade;
 import com.coupon.demo.service.AdminService;
 import com.coupon.demo.service.ClientType;
 import com.coupon.demo.service.LoginManager;
@@ -19,31 +20,31 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/couponproject")
-public class AdminServiceController {
+public class AdminFacadeController {
 
     private final LoginManager loginManager;
-    private AdminService adminService;
+    private AdminFacade adminFacade;
 
 
     @Autowired
-    public AdminServiceController(AdminService adminService, LoginManager loginManager) {
-        this.adminService = adminService;
+    public AdminFacadeController(AdminFacade adminFacade, LoginManager loginManager) {
+        this.adminFacade = adminFacade;
         this.loginManager = loginManager;
     }
 
 
     @PostMapping("/adminLogin")
     public ResponseEntity<String> adminLogin(@RequestBody Login login) {
-        adminService = (AdminService) loginManager.login(login);
+        adminFacade = (AdminFacade) loginManager.login(login);
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
                 "Login successful!");
     }
 
-    @PostMapping("/addCompany")
-    public ResponseEntity<String> addCompany(@RequestBody Company company) {
-        adminService.addCompany(company);
-
-    }
+//    @PostMapping("/addCompany")
+//    public ResponseEntity<String> addCompany(@RequestBody Company company) {
+//        adminFacade.addCompany(company);
+//
+//    }
 
 //    @PutMapping("/updateCompany")
 //    public ResponseEntity<String> updateCompany(@RequestBody Login login) {
@@ -61,19 +62,19 @@ public class AdminServiceController {
 
     @GetMapping("/companies")
     public ResponseEntity<List<Company>> getAllCompanies() {
-        List<Company> companies = adminService.getAllCompanies();
+        List<Company> companies = adminFacade.getAllCompanies();
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(companies);
     }
 
     @GetMapping("/company/{id}")
     public ResponseEntity<Company> getOneCompany(@PathVariable("id") Long id) {
-        Company company = adminService.getOneCompany(id);
+        Company company = adminFacade.getOneCompany(id);
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(company);
     }
 
     @PostMapping("/addCustomer")
     public ResponseEntity<Customer> addCustomer(@RequestBody Customer customer) {
-        Customer returnedCustomer = adminService.addCustomer(customer);
+        Customer returnedCustomer = adminFacade.addCustomer(customer);
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
                 returnedCustomer);
     }
@@ -90,13 +91,13 @@ public class AdminServiceController {
 
     @GetMapping("/customers")
     public ResponseEntity<List<Customer>> getAllCustomer() {
-        List<Customer> customers = adminService.getAllCustomers();
+        List<Customer> customers = adminFacade.getAllCustomers();
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(customers);
     }
 
     @GetMapping("/customer/{id}")
     public ResponseEntity<Customer> getOneCustomer(@PathVariable("id") Long id) {
-        Customer customer = adminService.getOneCustomer(id);
+        Customer customer = adminFacade.getOneCustomer(id);
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(customer);
     }
 

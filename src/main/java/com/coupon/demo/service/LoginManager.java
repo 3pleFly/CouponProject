@@ -1,6 +1,12 @@
 package com.coupon.demo.service;
 
 
+import com.coupon.demo.beans.Company;
+import com.coupon.demo.dtobeans.Login;
+import com.coupon.demo.facade.AdminFacade;
+import com.coupon.demo.facade.ClientFacade;
+import com.coupon.demo.facade.CompanyFacade;
+import com.coupon.demo.facade.CustomerFacade;
 import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
@@ -13,41 +19,48 @@ import org.springframework.stereotype.Service;
 @Service
 public class LoginManager {
 
-    private AdminService adminService;
-    private CompanyService companyService;
-    private CustomerService customerService;
+    private AdminFacade adminFacade;
+    private CompanyFacade companyFacade;
+    private CustomerFacade customerFacade;
 
-    public LoginManager() {
+    @Autowired
+    public void setAdminService(AdminFacade adminFacade) {
+        this.adminFacade = adminFacade;
     }
 
     @Autowired
-    public void setAdminService(AdminService adminService) {
-        this.adminService = adminService;
+    public void setCompanyFacade(CompanyFacade companyFacade) {
+        this.companyFacade = companyFacade;
     }
 
     @Autowired
-    public void setCompanyService(CompanyService companyService) {
-        this.companyService = companyService;
+    public void setCustomerFacade(CustomerFacade customerFacade) {
+        this.customerFacade = customerFacade;
     }
 
-    @Autowired
-    public void setCustomerService(CustomerService customerService) {
-        this.customerService = customerService;
+    public ClientFacade login(Login login) {
+        if (login.getEmail() != null && login.getPassword() != null && login.getClientType() != null) {
+            ClientType clientType = login.getClientType();
+            String email = login.getEmail();
+            String password = login.getPassword();
+            return getClientFacade(clientType, email, password);
+        }
+        throw new RuntimeException("Login information cannot be null!");
     }
 
-    public ClientService login(String email, String password, ClientType clientType) {
+    private ClientFacade getClientFacade(ClientType clientType, String email, String password) {
         switch (clientType) {
             case Administrator:
-                adminService.login(email, password);
-                return adminService;
+                adminFacade.login(email, password);
+                return adminFacade;
 
             case Company:
-                companyService.login(email, password);
-                return companyService;
+                companyFacade.login(email, password);
+                return companyFacade;
 
             case Customer:
-                customerService.login(email, password);
-                return customerService;
+                customerFacade.login(email, password);
+                return customerFacade;
         }
         throw new RuntimeException("Login manager failed");
     }

@@ -1,111 +1,89 @@
 package com.coupon.demo.facade;
 
 import com.coupon.demo.beans.Category;
-import com.coupon.demo.beans.Company;
+import com.coupon.demo.beans.Coupon;
 import com.coupon.demo.beans.Customer;
+import com.coupon.demo.exception.CouponExpired;
+import com.coupon.demo.exception.CouponNotAvailable;
 import com.coupon.demo.exception.LoginFailed;
-import com.coupon.demo.service.AdminService;
+import com.coupon.demo.repositories.CategoryRepository;
+import com.coupon.demo.repositories.CompanyRepository;
+import com.coupon.demo.repositories.CouponRepository;
+import com.coupon.demo.repositories.CustomerRepository;
+import com.coupon.demo.service.CompanyService;
+import com.coupon.demo.service.CustomerService;
+import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
+@ToString
 @Service
-public class CompanyFacade {
-    private AdminService adminService;
+public class CustomerFacade extends ClientFacade {
 
+    private final CustomerService customerService;
     private boolean isLoggedIn = false;
+    private Customer customer;
 
     @Autowired
-    public CompanyFacade(AdminService adminService) {
-        this.adminService = adminService;
+    public CustomerFacade(CustomerService customerService) {
+        this.customerService = customerService;
     }
+
+    @Override
     public boolean login(String email, String password) {
-        if (email.equals("admin@admin.com") && password.equals("admin")) {
+        customerService.isCustomerExists(email, password).ifPresent((loggedCustomer -> {
+            customer = loggedCustomer;
             isLoggedIn = true;
-        } else {
-            throw new LoginFailed("Admin login failed!");
-        }
-        return isLoggedIn;
+        }));
+        throw new LoginFailed("Admin login failed!");
     }
 
-    public Company addCompany(Company company) {
+    public void purchaseCoupon(Coupon coupon) {
         if (!isLoggedIn) {
-            throw new LoginFailed("Admin is not logged in");
+            throw new LoginFailed("Customer is not logged in");
         }
-        return adminService.addCompany(company);
+        if (coupon.getAmount().equals(0)) {
+            throw new CouponNotAvailable("The coupon's available amount is 0");
+        }
+        if (coupon.getEndDate().isBefore(LocalDate.now())) {
+            throw new CouponExpired("The coupon is expired");
+        }
+        if (customer.getCoupons().contains(coupon)) {
+            throw new RuntimeException("Customer already purchased this coupon");
+        }
+        customerService.purchaseCoupon(coupon);
+        customerService.getCustomerDetails(customer.getId());
     }
 
-    public Company updateCompany(Company company) {
+    public List<Coupon> getCustomerCoupons() {
         if (!isLoggedIn) {
-            throw new LoginFailed("Admin is not logged in");
+            throw new LoginFailed("Customer is not logged in");
         }
-        return adminService.updateCompany(company);
+        return customerService.getCustomerCoupons(customer);
     }
 
-    @Transactional
-    public void deleteCompany(Long companyId) {
+    public List<Coupon> getCustomerCoupons(Category category) {
         if (!isLoggedIn) {
-            throw new LoginFailed("Admin is not logged in");
+            throw new LoginFailed("Customer is not logged in");
         }
-        adminService.deleteCompany(companyId);
+        return customerService.getCustomerCoupons(category, customer);
     }
 
-    public List<Company> getAllCompanies() {
+    public List<Coupon> getCustomerCoupons(double maxPrice) {
         if (!isLoggedIn) {
-            throw new LoginFailed("Admin is not logged in");
+            throw new LoginFailed("Customer is not logged in");
         }
-        return adminService.getAllCompanies();
+        return customerService.getCustomerCoupons(maxPrice, customer);
     }
 
-    public Company getOneCompany(Long companyId) {
+    public Customer getCustomerDetails() {
         if (!isLoggedIn) {
-            throw new LoginFailed("Admin is not logged in");
+            throw new LoginFailed("Customer is not logged in");
         }
-        return adminService.getOneCompany(companyId);
-    }
-
-    public Customer addCustomer(Customer customer) {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Admin is not logged in");
-        }
-        return adminService.addCustomer(customer);
-    }
-
-    public Customer updateCustomer(Customer customer) {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Admin is not logged in");
-        }
-        return adminService.updateCustomer(customer);
-    }
-
-    public void deleteCustomer(Long customerId) {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Admin is not logged in");
-        }
-        adminService.deleteCustomer(customerId);
-    }
-
-    public List<Customer> getAllCustomers() {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Admin is not logged in");
-        }
-        return adminService.getAllCustomers();
-    }
-
-    public Customer getOneCustomer(Long customerId) {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Admin is not logged in");
-        }
-        return adminService.getOneCustomer(customerId);
-    }
-
-    public Category addCategory(Category category) {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Admin is not logged in");
-        }
-        return adminService.addCategory(category);
+        return customerService.getCustomerDetails(customer.getId());
     }
 
 }

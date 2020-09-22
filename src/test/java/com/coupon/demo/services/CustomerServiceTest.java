@@ -2,6 +2,7 @@ package com.coupon.demo.services;
 
 import com.coupon.demo.beans.Category;
 import com.coupon.demo.beans.Coupon;
+import com.coupon.demo.facade.CustomerFacade;
 import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.service.*;
@@ -18,7 +19,7 @@ class CustomerServiceTest {
     private Coupon coupon;
 
     @Autowired
-    private CustomerService customerService;
+    private CustomerFacade customerFacade;
     @Autowired
     private CouponRepository couponRepository;
     @Autowired
@@ -28,7 +29,7 @@ class CustomerServiceTest {
     @Test
     void login() {
         try {
-            customerService.login("new@emailer.com", "password");
+            customerFacade.login("new@emailer.com", "password");
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
@@ -39,7 +40,7 @@ class CustomerServiceTest {
         try {
             login();
             coupon = couponRepository.findById(2L).get();
-            customerService.purchaseCoupon(coupon);
+            customerFacade.purchaseCoupon(coupon);
             logger.info("purchaseCoupon Test");
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -51,7 +52,7 @@ class CustomerServiceTest {
     void getCustomerCoupons() {
         try {
             login();
-            customerService.getCustomerCoupons().forEach(System.out::println);
+            customerFacade.getCustomerCoupons().forEach(System.out::println);
             logger.info("getCustomerCoupons Test");
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -63,7 +64,7 @@ class CustomerServiceTest {
         try {
             login();
             Category category = categoryRepository.findById(2L).get();
-            customerService.getCustomerCoupons(category).forEach(System.out::println);
+            customerFacade.getCustomerCoupons(category).forEach(System.out::println);
             logger.info("getCustomerCouponsByCategory Test");
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -74,7 +75,7 @@ class CustomerServiceTest {
     void getCustomerCouponsByMaxPrice() {
         try {
             login();
-            customerService.getCustomerCoupons(49.99).forEach(System.out::println);
+            customerFacade.getCustomerCoupons(49.99).forEach(System.out::println);
             logger.info("getCustomerCouponsByMaxPrice Test");
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -85,7 +86,7 @@ class CustomerServiceTest {
     void getCustomerDetails() {
         try {
             login();
-            System.out.println(customerService.getCustomerDetails());
+            System.out.println(customerFacade.getCustomerDetails());
             logger.info("getCustomerDetails Test");
         } catch (Exception e) {
             logger.error(e.getMessage());

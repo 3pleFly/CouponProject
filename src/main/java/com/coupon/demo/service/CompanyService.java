@@ -13,14 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @ToString
 @Service
-public class CompanyService extends ClientService {
+public class CompanyService {
 
-    private boolean isLoggedIn = false;
-    @ToString.Exclude
-    private Company company;
+    private CategoryRepository categoryRepository;
+    private CompanyRepository companyRepository;
+    private CouponRepository couponRepository;
+    private CustomerRepository customerRepository;
+
 
     @Autowired
     public CompanyService(CategoryRepository categoryRepository,
@@ -32,74 +35,36 @@ public class CompanyService extends ClientService {
         this.customerRepository = customerRepository;
     }
 
-    @Override
-    public boolean login(String email, String password) {
-        if (companyRepository.existsByEmailAndPassword(email, password)) {
-            isLoggedIn = true;
-            company = companyRepository.findByEmailAndPassword(email, password);
-            return isLoggedIn;
-        } else {
-            throw new LoginFailed("Company login failed!");
-        }
+    public Optional<Company> isCompanyExists(String email, String password) {
+        return Optional.of(companyRepository.findByEmailAndPassword(email,password));
     }
 
-
     public void addCoupon(Coupon coupon) {
-        if (isLoggedIn == false) {
-            throw new LoginFailed("Company is not logged in");
-        }
         couponRepository.save(coupon);
-        updateCompany();
     }
 
     public Coupon updateCoupon(Coupon coupon) {
-        if (isLoggedIn == false) {
-            throw new LoginFailed("Company is not logged in");
-        }
         return couponRepository.save(coupon);
     }
 
-    @Transactional
     public void deleteCoupon(Coupon coupon) {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Company is not logged in");
-        }
         couponRepository.deleteFromCvCByCouponId(coupon.getId());
         couponRepository.delete(coupon);
     }
 
-    public List<Coupon> getCompanyCoupons() {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Company is not logged in");
-        }
+    public List<Coupon> getCompanyCoupons(Company company) {
         return couponRepository.findAllByCompany(company);
     }
 
-    public List<Coupon> getCompanyCoupons(Category category) {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Company is not logged in");
-        }
+    public List<Coupon> getCompanyCoupons(Category category, Company company) {
         return couponRepository.findAllByCompanyAndCategory(company, category);
     }
 
-    public List<Coupon> getCompanyCoupons(double maxPrice) {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Company is not logged in");
-        }
+    public List<Coupon> getCompanyCoupons(double maxPrice, Company company) {
         return couponRepository.findAllByCompanyAndMaxPrice(company, maxPrice);
     }
 
-    public Company getCompanyDetails() {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Company is not logged in");
-        }
-        return companyRepository.findById(company.getId()).get();
-    }
-
-    private Company updateCompany() {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Company is not logged in");
-        }
-        return company = companyRepository.findById(company.getId()).get();
+    public Company getCompanyDetails(Long companyId) {
+        return companyRepository.findById(companyId).get();
     }
 }

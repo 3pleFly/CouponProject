@@ -13,17 +13,21 @@ import com.coupon.demo.repositories.CustomerRepository;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.swing.text.html.Option;
 import java.time.LocalDate;
 
 import java.util.List;
+import java.util.Optional;
 
 @ToString
 @Service
-public class CustomerService extends ClientService {
+public class CustomerService {
 
-    private boolean isLoggedIn = false;
-    @ToString.Exclude
-    private Customer customer;
+    private CategoryRepository categoryRepository;
+    private CompanyRepository companyRepository;
+    private CustomerRepository customerRepository;
+    private CouponRepository couponRepository;
 
     @Autowired
     public CustomerService(CategoryRepository categoryRepository,
@@ -35,62 +39,29 @@ public class CustomerService extends ClientService {
         this.customerRepository = customerRepository;
     }
 
-    @Override
-    public boolean login(String email, String password) {
-        if (customerRepository.existsByEmailAndPassword(email, password)) {
-            isLoggedIn = true;
-            customer = customerRepository.findByEmailAndPassword(email, password);
-            return isLoggedIn;
-        } else {
-            throw new LoginFailed("Customer login failed!");
-        }
+    public Optional<Customer> isCustomerExists(String email, String password) {
+        return Optional.of(customerRepository.findByEmailAndPassword(email,password));
     }
 
     public void purchaseCoupon(Coupon coupon) {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Company is not logged in");
-        }
-        if (customer.getCoupons().contains(coupon)) {
-            throw new RuntimeException("Customer already purchased this coupon");
-        }
-        if (coupon.getAmount().equals(0)) {
-            throw new CouponNotAvailable("The coupon's available amount is 0");
-        }
-        if (coupon.getEndDate().isBefore(LocalDate.now())) {
-            throw new CouponExpired("The coupon is expired");
-        }
-        customer.getCoupons().add(coupon);
         coupon.setAmount(coupon.getAmount() - 1);
         couponRepository.save(coupon);
-        this.customer = customerRepository.save(customer);
     }
 
-    public List<Coupon> getCustomerCoupons() {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Company is not logged in");
-        }
+    public List<Coupon> getCustomerCoupons(Customer customer) {
         return customerRepository.findById(customer.getId()).get().getCoupons();
     }
 
-    public List<Coupon> getCustomerCoupons(Category category) {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Company is not logged in");
-        }
+    public List<Coupon> getCustomerCoupons(Category category, Customer customer) {
         return couponRepository.findAllByCustomerAndCategory(customer, category);
     }
 
-    public List<Coupon> getCustomerCoupons(double maxPrice) {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Company is not logged in");
-        }
+    public List<Coupon> getCustomerCoupons(double maxPrice, Customer customer) {
         return couponRepository.findAllByCustomerAndMaxPrice(customer.getId(), maxPrice);
     }
 
-    public Customer getCustomerDetails() {
-        if (!isLoggedIn) {
-            throw new LoginFailed("Company is not logged in");
-        }
-        return customer;
+    public Customer getCustomerDetails(Long customerId) {
+        return customerRepository.findById(customerId).get();
     }
 }
 

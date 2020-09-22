@@ -1,5 +1,6 @@
 package com.coupon.demo.beans;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -29,6 +30,7 @@ public class Coupon {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "company_id", updatable = false)
     @ToString.Exclude
+    @JsonIgnore
     private Company company;
 
     @Column(name = "title", length = 30)
@@ -54,6 +56,7 @@ public class Coupon {
 
     @ManyToMany(mappedBy = "coupons", fetch = FetchType.EAGER)
     @ToString.Exclude
+    @JsonIgnore
     private List<Customer> customer;
 
 
