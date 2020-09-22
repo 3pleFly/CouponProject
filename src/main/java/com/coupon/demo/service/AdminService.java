@@ -33,7 +33,7 @@ public class AdminService extends ClientService {
 
     @Override
     public boolean login(String email, String password) {
-        if (email == "admin@admin.com" && password == "admin") {
+        if (email.equals("admin@admin.com") && password.equals("admin")) {
             isLoggedIn = true;
         } else {
             throw new LoginFailed("Admin login failed!");

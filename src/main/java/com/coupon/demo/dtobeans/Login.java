@@ -1,4 +1,4 @@
-package com.coupon.demo.beans;
+package com.coupon.demo.dtobeans;
 
 
 import com.coupon.demo.service.ClientType;

@@ -16,7 +16,6 @@ public class CustomerDTO {
     private String lastName;
     private String email;
     private String password;
-    private List<Coupon> coupons;
 
 
 }

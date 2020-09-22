@@ -1,5 +1,6 @@
 package com.coupon.demo.dtobeans;
 
+import com.coupon.demo.beans.Coupon;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,6 +14,6 @@ public class CompanyDTO {
     private String name;
     private String email;
     private String password;
-    private List<Coupon> coupons;
+
 
 }
