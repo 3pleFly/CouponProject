@@ -24,7 +24,7 @@ public class Coupon {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id")   
     private Category category;
 
     @ManyToOne(fetch = FetchType.EAGER)

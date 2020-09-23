@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/couponproject")
 public class AdminFacadeController {
@@ -40,25 +41,26 @@ public class AdminFacadeController {
                 "Login successful!");
     }
 
-//    @PostMapping("/addCompany")
-//    public ResponseEntity<String> addCompany(@RequestBody Company company) {
-//        adminFacade.addCompany(company);
-//
-//    }
+    @PostMapping("/addCompany")
+    public ResponseEntity<String> addCompany(@RequestBody Company company) {
+        adminFacade.addCompany(company);
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
+                "Company added");
+    }
 
-//    @PutMapping("/updateCompany")
-//    public ResponseEntity<String> updateCompany(@RequestBody Login login) {
-//        adminService = (AdminService) loginManager.login(login);
-//        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
-//                "Login successful!");
-//    }
+    @PutMapping("/updateCompany")
+    public ResponseEntity<String> updateCompany(@RequestBody Company company) {
+        adminFacade.updateCompany(company);
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
+                "Company updated.");
+    }
 
-//    @DeleteMapping("/deleteCompany")
-//    public ResponseEntity<String> deleteCompany(@RequestBody Login login) {
-//        adminService = (AdminService) loginManager.login(login);
-//        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
-//                "Login successful!");
-//    }
+    @DeleteMapping("/deleteCompany/{id}")
+    public ResponseEntity<String> deleteCompany(@PathVariable Long id) {
+        adminFacade.deleteCompany(id);
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
+                "Company deleted.");
+    }
 
     @GetMapping("/companies")
     public ResponseEntity<List<Company>> getAllCompanies() {

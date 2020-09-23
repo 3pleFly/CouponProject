@@ -35,6 +35,9 @@ public class GlobalExceptionHandler {
             case 1062:
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("You submitted conflicting" +
                         " entries, duplicate entries...");
+            case 1048:
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Some of the columns were " +
+                        "null");
             default:
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                         "Internal database error");
