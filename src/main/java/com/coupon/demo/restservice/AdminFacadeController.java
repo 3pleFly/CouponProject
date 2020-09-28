@@ -20,7 +20,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
-@RequestMapping("/couponproject")
+@RequestMapping("/admin")
 public class AdminFacadeController {
 
     private final LoginManager loginManager;
@@ -63,9 +63,10 @@ public class AdminFacadeController {
     }
 
     @GetMapping("/companies")
-    public ResponseEntity<List<Company>> getAllCompanies() {
-        List<Company> companies = adminFacade.getAllCompanies();
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(companies);
+    public ResponseEntity<String> getAllCompanies() {
+//        List<Company> companies = adminFacade.getAllCompanies();
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
+                "all companies...");
     }
 
     @GetMapping("/company/{id}")
