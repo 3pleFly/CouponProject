@@ -105,13 +105,13 @@ public class AdminFacadeController {
     }
 
 
-//
-//    @GetMapping("/adminLogin")
-//    public ResponseEntity adminLogin() {
-//        Login login = new Login("email@email.com", "Password", ClientType.Administrator);
-//        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
-//                login);
-//    }
+
+    @GetMapping("/adminLogin")
+    public ResponseEntity adminLogin() {
+        Login login = new Login("email@email.com", "Password", ClientType.Administrator);
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
+                login);
+    }
 
 
 }
