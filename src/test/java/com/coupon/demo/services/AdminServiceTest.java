@@ -1,14 +1,10 @@
 package com.coupon.demo.services;
 
-import com.coupon.demo.beans.Category;
-import com.coupon.demo.beans.CategoryType;
-import com.coupon.demo.beans.Company;
-import com.coupon.demo.beans.Customer;
+import com.coupon.demo.entities.Category;
+import com.coupon.demo.entities.CategoryType;
+import com.coupon.demo.entities.Company;
+import com.coupon.demo.entities.Customer;
 import com.coupon.demo.facade.AdminFacade;
-import com.coupon.demo.service.AdminService;
-import com.coupon.demo.service.ClientType;
-import com.coupon.demo.service.CompanyService;
-import com.coupon.demo.service.LoginManager;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

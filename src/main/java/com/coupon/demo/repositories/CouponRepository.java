@@ -1,9 +1,9 @@
 package com.coupon.demo.repositories;
 
-import com.coupon.demo.beans.Category;
-import com.coupon.demo.beans.Company;
-import com.coupon.demo.beans.Coupon;
-import com.coupon.demo.beans.Customer;
+import com.coupon.demo.entities.Category;
+import com.coupon.demo.entities.Company;
+import com.coupon.demo.entities.Coupon;
+import com.coupon.demo.entities.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

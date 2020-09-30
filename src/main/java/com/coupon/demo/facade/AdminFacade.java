@@ -1,8 +1,8 @@
 package com.coupon.demo.facade;
 
-import com.coupon.demo.beans.Category;
-import com.coupon.demo.beans.Company;
-import com.coupon.demo.beans.Customer;
+import com.coupon.demo.entities.Category;
+import com.coupon.demo.entities.Company;
+import com.coupon.demo.entities.Customer;
 import com.coupon.demo.exception.LoginFailed;
 import com.coupon.demo.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;

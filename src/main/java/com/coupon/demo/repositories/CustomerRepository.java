@@ -1,6 +1,6 @@
 package com.coupon.demo.repositories;
 
-import com.coupon.demo.beans.Customer;
+import com.coupon.demo.entities.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

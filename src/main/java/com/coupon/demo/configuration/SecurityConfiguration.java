@@ -1,6 +1,7 @@
 package com.coupon.demo.configuration;
 
 import com.coupon.demo.model.Role;
+import com.coupon.demo.security.JpaUserDetailsService;
 import lombok.NoArgsConstructor;
 import net.bytebuddy.asm.AsmVisitorWrapper;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -23,38 +25,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public UserDetailsManager userDetailsManager() {
-        InMemoryUserDetailsManager manager =
-                new InMemoryUserDetailsManager();
-
-        UserDetails user1 = User
-                .withUsername("admin")
-                .password("admin")
-                .authorities(Role.ADMIN.name()).build();
-
-        UserDetails user2 = User
-                .withUsername("jake")
-                .password("admin")
-                .authorities(Role.COMPANY.name()).build();
-
-        manager.createUser(user1);
-        manager.createUser(user2);
-        System.out.println(user2.getAuthorities());
-        return manager;
+    public UserDetailsService userDetailsService() {
+        return new JpaUserDetailsService();
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.formLogin()
-                .defaultSuccessUrl("/default", true);
+        http.httpBasic();
 
         http
                 .authorizeRequests()
-                .mvcMatchers("/admin")
-                .access("hasAnyAuthority('ADMIN')")
-                .mvcMatchers("/jake")
-                .access("hasAnyAuthority('COMPANY')")
-                .anyRequest().authenticated();
+                .anyRequest()
+                .authenticated();
     }
 
 

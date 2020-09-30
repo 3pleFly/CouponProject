@@ -1,12 +1,9 @@
 package com.coupon.demo.restservice;
 
-import com.coupon.demo.beans.Company;
-import com.coupon.demo.beans.Customer;
-import com.coupon.demo.dtobeans.CustomerDTO;
+import com.coupon.demo.entities.Company;
+import com.coupon.demo.entities.Customer;
 import com.coupon.demo.dtobeans.Login;
-import com.coupon.demo.dtobeans.CompanyDTO;
 import com.coupon.demo.facade.AdminFacade;
-import com.coupon.demo.service.AdminService;
 import com.coupon.demo.service.ClientType;
 import com.coupon.demo.service.LoginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")

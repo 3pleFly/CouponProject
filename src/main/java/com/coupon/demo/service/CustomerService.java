@@ -1,11 +1,8 @@
 package com.coupon.demo.service;
 
-import com.coupon.demo.beans.Category;
-import com.coupon.demo.beans.Coupon;
-import com.coupon.demo.beans.Customer;
-import com.coupon.demo.exception.CouponExpired;
-import com.coupon.demo.exception.CouponNotAvailable;
-import com.coupon.demo.exception.LoginFailed;
+import com.coupon.demo.entities.Category;
+import com.coupon.demo.entities.Coupon;
+import com.coupon.demo.entities.Customer;
 import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
@@ -13,9 +10,6 @@ import com.coupon.demo.repositories.CustomerRepository;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.swing.text.html.Option;
-import java.time.LocalDate;
 
 import java.util.List;
 import java.util.Optional;
