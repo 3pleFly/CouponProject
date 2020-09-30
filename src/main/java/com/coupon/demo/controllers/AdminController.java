@@ -1,38 +1,54 @@
-package com.coupon.demo.restservice;
+package com.coupon.demo.controllers;
 
-import com.coupon.demo.beans.Company;
-import com.coupon.demo.beans.Customer;
-import com.coupon.demo.dtobeans.CustomerDTO;
-import com.coupon.demo.dtobeans.Login;
-import com.coupon.demo.dtobeans.CompanyDTO;
+import com.coupon.demo.entities.Company;
+import com.coupon.demo.entities.Customer;
+import com.coupon.demo.dto.Login;
 import com.coupon.demo.facade.AdminFacade;
-import com.coupon.demo.service.AdminService;
-import com.coupon.demo.service.ClientType;
+import com.coupon.demo.model.AuthRequest;
 import com.coupon.demo.service.LoginManager;
+import com.coupon.demo.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+//@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/admin")
-public class AdminFacadeController {
+public class AdminController {
 
     private final LoginManager loginManager;
     private AdminFacade adminFacade;
+    private JwtUtil jwtUtil;
+    private AuthenticationManager authenticationManager;
 
 
     @Autowired
-    public AdminFacadeController(AdminFacade adminFacade, LoginManager loginManager) {
-        this.adminFacade = adminFacade;
+    public AdminController(LoginManager loginManager, AdminFacade adminFacade,
+                           JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
         this.loginManager = loginManager;
+        this.adminFacade = adminFacade;
+        this.jwtUtil = jwtUtil;
+        this.authenticationManager = authenticationManager;
     }
 
+    @PostMapping("/authenticate")
+    public String authenticate(@RequestBody AuthRequest authRequest) throws Exception {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
+                    authRequest.getPassword()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException( "invalid username/password");
+        }
+        return jwtUtil.generateToken(authRequest.getUsername());
+    }
 
     @PostMapping("/adminLogin")
     public ResponseEntity<String> adminLogin(@RequestBody Login login) {

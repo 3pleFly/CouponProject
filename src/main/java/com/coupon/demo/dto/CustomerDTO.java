@@ -1,10 +1,6 @@
-package com.coupon.demo.dtobeans;
+package com.coupon.demo.dto;
 
-import com.coupon.demo.beans.Coupon;
 import lombok.*;
-
-import javax.persistence.*;
-import java.util.List;
 
 @AllArgsConstructor
 @Data

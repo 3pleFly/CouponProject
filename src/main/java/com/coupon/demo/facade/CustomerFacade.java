@@ -1,16 +1,11 @@
 package com.coupon.demo.facade;
 
-import com.coupon.demo.beans.Category;
-import com.coupon.demo.beans.Coupon;
-import com.coupon.demo.beans.Customer;
+import com.coupon.demo.entities.Category;
+import com.coupon.demo.entities.Coupon;
+import com.coupon.demo.entities.Customer;
 import com.coupon.demo.exception.CouponExpired;
 import com.coupon.demo.exception.CouponNotAvailable;
 import com.coupon.demo.exception.LoginFailed;
-import com.coupon.demo.repositories.CategoryRepository;
-import com.coupon.demo.repositories.CompanyRepository;
-import com.coupon.demo.repositories.CouponRepository;
-import com.coupon.demo.repositories.CustomerRepository;
-import com.coupon.demo.service.CompanyService;
 import com.coupon.demo.service.CustomerService;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;

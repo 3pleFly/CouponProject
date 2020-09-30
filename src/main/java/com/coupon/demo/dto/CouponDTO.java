@@ -1,12 +1,9 @@
-package com.coupon.demo.dtobeans;
+package com.coupon.demo.dto;
 
-import com.coupon.demo.beans.Category;
+import com.coupon.demo.entities.Category;
 import lombok.*;
 
-import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
 
 @AllArgsConstructor
 @Data

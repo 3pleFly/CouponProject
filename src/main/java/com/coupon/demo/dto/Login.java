@@ -1,10 +1,8 @@
-package com.coupon.demo.dtobeans;
+package com.coupon.demo.dto;
 
 
 import com.coupon.demo.service.ClientType;
 import lombok.Data;
-
-import javax.validation.constraints.NotNull;
 
 @Data
 public class Login {

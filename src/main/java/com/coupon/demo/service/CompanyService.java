@@ -1,9 +1,8 @@
 package com.coupon.demo.service;
 
-import com.coupon.demo.beans.Category;
-import com.coupon.demo.beans.Company;
-import com.coupon.demo.beans.Coupon;
-import com.coupon.demo.exception.LoginFailed;
+import com.coupon.demo.entities.Category;
+import com.coupon.demo.entities.Company;
+import com.coupon.demo.entities.Coupon;
 import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
@@ -11,7 +10,7 @@ import com.coupon.demo.repositories.CustomerRepository;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 

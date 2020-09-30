@@ -1,6 +1,6 @@
 package com.coupon.demo.service;
 
-import com.coupon.demo.beans.Coupon;
+import com.coupon.demo.entities.Coupon;
 import com.coupon.demo.repositories.CouponRepository;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;

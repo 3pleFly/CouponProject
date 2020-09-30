@@ -1,19 +1,12 @@
 package com.coupon.demo.service;
 
 
-import com.coupon.demo.beans.Company;
-import com.coupon.demo.dtobeans.Login;
+import com.coupon.demo.dto.Login;
 import com.coupon.demo.facade.AdminFacade;
 import com.coupon.demo.facade.ClientFacade;
 import com.coupon.demo.facade.CompanyFacade;
 import com.coupon.demo.facade.CustomerFacade;
-import com.coupon.demo.repositories.CategoryRepository;
-import com.coupon.demo.repositories.CompanyRepository;
-import com.coupon.demo.repositories.CouponRepository;
-import com.coupon.demo.repositories.CustomerRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service

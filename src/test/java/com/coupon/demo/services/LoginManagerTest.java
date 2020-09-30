@@ -1,6 +1,6 @@
 package com.coupon.demo.services;
 
-import com.coupon.demo.dtobeans.Login;
+import com.coupon.demo.dto.Login;
 import com.coupon.demo.facade.AdminFacade;
 import com.coupon.demo.facade.CompanyFacade;
 import com.coupon.demo.facade.CustomerFacade;
