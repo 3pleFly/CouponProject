@@ -5,6 +5,7 @@ import com.coupon.demo.entities.Customer;
 import com.coupon.demo.dto.Login;
 import com.coupon.demo.facade.AdminFacade;
 import com.coupon.demo.model.AuthRequest;
+import com.coupon.demo.model.Scope;
 import com.coupon.demo.service.LoginManager;
 import com.coupon.demo.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-//@CrossOrigin(origins = "*", allowedHeaders = "*")
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/admin")
@@ -47,7 +47,7 @@ public class AdminController {
             e.printStackTrace();
             throw new RuntimeException( "invalid username/password");
         }
-        return jwtUtil.generateToken(authRequest.getUsername());
+        return jwtUtil.encodeJwt(authRequest, Scope.ADMIN);
     }
 
     @PostMapping("/adminLogin")

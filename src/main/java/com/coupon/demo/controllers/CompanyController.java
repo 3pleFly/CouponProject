@@ -1,6 +1,7 @@
 package com.coupon.demo.controllers;
 
 import com.coupon.demo.model.AuthRequest;
+import com.coupon.demo.model.Scope;
 import com.coupon.demo.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,12 +35,11 @@ public class CompanyController {
         } catch (Exception e) {
             throw new RuntimeException( "invalid username/password");
         }
-        return jwtUtil.generateToken(authRequest.getUsername());
+        return jwtUtil.encodeJwt(authRequest, Scope.COMPANY);
     }
 
 
     @GetMapping("/companies")
-    @PreAuthorize("hasRole('ROLE_COMPANY')")
     public ResponseEntity<String> getAllCompanies() {
 //        List<Company> companies = adminFacade.getAllCompanies();
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
@@ -47,7 +47,6 @@ public class CompanyController {
     }
 
     @GetMapping("/try")
-//    @PreAuthorize("hasRole('COMPANY')")
     public ResponseEntity<String> meTry() {
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
                 "all companies...");

@@ -1,64 +1,64 @@
 package com.coupon.demo.utils;
 
+import com.coupon.demo.model.AuthRequest;
+import com.coupon.demo.model.Scope;
+import com.coupon.demo.model.Scope.*;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
 import java.util.Map;
 import java.util.function.Function;
+
+import static com.coupon.demo.model.Scope.*;
+import static io.jsonwebtoken.SignatureAlgorithm.HS256;
+import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 
 @Service
 public class JwtUtil {
 
-    private String secret = "FreddySaberRocksKey";
+    @Value("${secret}")
+    private String SECRET_KEY;
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public Function<Claims, Object> extractScope = claims -> {
+        if (claims.get("scope") != null) {
+            return claims.get("scope");
+        }
+        throw new RuntimeException("Invalid claims");
+    };
+
+    public Function<Claims, Object> extractName = claims -> {
+        if (claims.get("name") != null) {
+            return claims.get("name");
+        }
+        throw new RuntimeException("Invalid claims");
+    };
+
+  public String encodeJwt(AuthRequest authRequest, Scope scope) {
+        byte[] secretBytes = parseBase64Binary(SECRET_KEY);
+        Key key = new SecretKeySpec(secretBytes, HS256.getJcaName());
+        Map<String, Object> claims = Map.of(
+                "scope", scope.name().toLowerCase(),
+                "name", authRequest.getUsername()
+        );
+        return Jwts.builder()
+                .setClaims(claims)
+                .signWith(HS256, key)
+                .compact();
     }
 
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    private Claims extractAllClaims(String token) {
-        return Jwts
-                .parser()
-                .setSigningKey(secret)
-                .parseClaimsJws(token)
+    public Claims decodeJwt(String jwt) {
+        return Jwts.parser()
+                .setSigningKey(parseBase64Binary(SECRET_KEY))
+                .parseClaimsJws(jwt)
                 .getBody();
     }
 
-    private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    public boolean validateToken(Claims claims, UserDetails userDetails) {
+        return extractName.apply(claims).equals(userDetails.getUsername());
     }
-
-    public String generateToken(String username) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
-    }
-
-    private String createToken(Map<String, Object> claims, String subject) {
-        
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(SignatureAlgorithm.HS256, secret).compact();
-    }
-
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-    }
-
 }

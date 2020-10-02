@@ -1,6 +1,7 @@
 package com.coupon.demo.controllers;
 
 import com.coupon.demo.model.AuthRequest;
+import com.coupon.demo.model.Scope;
 import com.coupon.demo.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,14 +35,13 @@ public class CustomerController {
                     authRequest.getPassword()));
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException( "invalid username/password");
+            throw new RuntimeException("invalid username/password");
         }
-        return jwtUtil.generateToken(authRequest.getUsername());
+        return jwtUtil.encodeJwt(authRequest, Scope.CUSTOMER);
     }
 
 
     @GetMapping("/customers")
-    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
     public ResponseEntity<String> getAllCompanies() {
 //        List<Company> companies = adminFacade.getAllCompanies();
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(

@@ -1,6 +1,6 @@
 package com.coupon.demo.model.details;
 
-import com.coupon.demo.model.Role;
+import com.coupon.demo.model.Scope;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,10 +13,11 @@ public class AdminDetails implements UserDetails {
 
     private String username;
     private String password;
+    private Collection<GrantedAuthority> authorities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(Role.ADMIN::name);
+        return authorities;
     }
 
     @Override

@@ -11,3 +11,4 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
 
   port: 7070
+  secret: wegwtwfc254245bv24sr234bhuj57u3bh62

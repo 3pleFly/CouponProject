@@ -1,35 +1,23 @@
 package com.coupon.demo.model.details;
 
-import com.coupon.demo.model.Role;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
+@AllArgsConstructor
 @Data
 public class CustomerDetails implements UserDetails {
 
-    private String ROLE_PREFIX = "ROLE_";
     private String username;
     private String password;
-    private Role role;
-
-    public CustomerDetails(String username, String password, Role role) {
-        this.username = username;
-        this.password = password;
-        this.role = role;
-    }
+    private Collection<GrantedAuthority> authorities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> list = new ArrayList<GrantedAuthority>();
-        list.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.name()));
-        System.out.println("role list:" + list.toString());
-        return list;
+        return authorities;
     }
 
     @Override
