@@ -1,6 +1,5 @@
 package com.coupon.demo.filter;
 
-import com.coupon.demo.model.Scope;
 import com.coupon.demo.service.details.AdminDetailsService;
 import com.coupon.demo.service.details.CompanyDetailsService;
 import com.coupon.demo.service.details.CustomerDetailsService;
@@ -37,10 +36,14 @@ public class JwtFilter extends OncePerRequestFilter {
         Object username = jwtUtil.extractName.apply(claims);
         switch (scope.toString()) {
             case "customer":
+                System.out.println("1:" + scope);
                 return customerDetailsService.loadUserByUsername(username.toString());
             case "company":
+                System.out.println("2:" + scope);
+
                 return companyDetailsService.loadUserByUsername(username.toString());
             case "admin":
+                System.out.println("3:" + scope);
                 return adminDetailsService.loadUserByUsername(username.toString());
             default:
                 throw new RuntimeException("Undefined scope");
@@ -52,6 +55,7 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private UsernamePasswordAuthenticationToken mapToToken(UserDetails userDetails) {
+        System.out.println("details:" + userDetails.toString());
         return new UsernamePasswordAuthenticationToken(
                 userDetails,
                 null,

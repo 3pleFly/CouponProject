@@ -66,6 +66,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/customers/authenticate").permitAll()
                 .antMatchers("/companies/**").hasAnyRole(Scope.COMPANY.name(), Scope.ADMIN.name())
                 .antMatchers("/customers/**").hasAnyRole(Scope.CUSTOMER.name(), Scope.ADMIN.name())
+                .antMatchers("/admin/**").hasRole(Scope.ADMIN.name())
 
                 .anyRequest().authenticated().and()
                 .httpBasic().and()
