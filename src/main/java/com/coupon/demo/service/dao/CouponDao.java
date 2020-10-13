@@ -1,4 +1,4 @@
-package com.coupon.demo.service;
+package com.coupon.demo.service.dao;
 
 import com.coupon.demo.entities.Category;
 import com.coupon.demo.entities.Company;
@@ -69,8 +69,13 @@ public class CouponDao {
         return couponRepository.findAllByCustomerAndMaxPrice(customerID, maxPrice);
     }
 
-    public void addCouponPurchase(Long customerID, Long couponID) {
-        
+    public void addCouponPurchase(Coupon coupon, Long customerID) {
+        Customer customer = customerRepository
+                .findById(customerID).get();
+        customer.getCoupons().add(coupon);
+        coupon.setAmount(coupon.getAmount() - 1);
+        customerRepository.save(customer);
+        couponRepository.save(coupon);
     }
 
     public void deleteCouponPurchase(Long customerID, Long couponID) {

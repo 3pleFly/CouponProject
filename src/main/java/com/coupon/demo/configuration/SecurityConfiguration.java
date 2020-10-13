@@ -1,6 +1,6 @@
 package com.coupon.demo.configuration;
 
-import com.coupon.demo.filter.JwtFilter;
+import com.coupon.demo.configuration.filter.JwtFilter;
 import com.coupon.demo.model.Scope;
 import com.coupon.demo.service.details.AdminDetailsService;
 import com.coupon.demo.service.details.CompanyDetailsService;
@@ -59,11 +59,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http.csrf().disable().cors().disable()
                 .authorizeRequests()
-                .antMatchers("/admin/authenticate").permitAll()
-                .antMatchers("/companies/authenticate").permitAll()
-                .antMatchers("/customers/authenticate").permitAll()
+                .antMatchers("/public/**").permitAll()
                 .antMatchers("/companies/**").hasAnyRole(Scope.COMPANY.name(), Scope.ADMIN.name())
                 .antMatchers("/customers/**").hasAnyRole(Scope.CUSTOMER.name(), Scope.ADMIN.name())
                 .antMatchers("/admin/**").hasRole(Scope.ADMIN.name())

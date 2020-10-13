@@ -1,4 +1,4 @@
-package com.coupon.demo.service;
+package com.coupon.demo.service.dao;
 
 import com.coupon.demo.entities.Company;
 import com.coupon.demo.entities.Customer;

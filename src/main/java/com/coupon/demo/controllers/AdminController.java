@@ -1,12 +1,13 @@
 package com.coupon.demo.controllers;
 
+import com.coupon.demo.dto.CompanyDTO;
+import com.coupon.demo.dto.ResponseDTO;
 import com.coupon.demo.entities.Company;
 import com.coupon.demo.entities.Customer;
 import com.coupon.demo.dto.Login;
 import com.coupon.demo.facade.AdminFacade;
 import com.coupon.demo.model.AuthRequest;
 import com.coupon.demo.model.Scope;
-import com.coupon.demo.service.LoginManager;
 import com.coupon.demo.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,50 +19,35 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
 
-    private final LoginManager loginManager;
     private AdminFacade adminFacade;
     private JwtUtil jwtUtil;
     private AuthenticationManager authenticationManager;
 
 
     @Autowired
-    public AdminController(LoginManager loginManager, AdminFacade adminFacade,
+    public AdminController(AdminFacade adminFacade,
                            JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
-        this.loginManager = loginManager;
         this.adminFacade = adminFacade;
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
     }
 
-    @PostMapping("/authenticate")
-    public String authenticate(@RequestBody AuthRequest authRequest) throws Exception {
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
-                    authRequest.getPassword()));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException( "invalid username/password");
-        }
-        return jwtUtil.encodeJwt(authRequest, Scope.ADMIN);
-    }
-
-    @PostMapping("/adminLogin")
-    public ResponseEntity<String> adminLogin(@RequestBody Login login) {
-        adminFacade = (AdminFacade) loginManager.login(login);
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
-                "Login successful!");
-    }
 
     @PostMapping("/addCompany")
-    public ResponseEntity<String> addCompany(@RequestBody Company company) {
-        adminFacade.addCompany(company);
+    public ResponseEntity<ResponseDTO> addCompany(@RequestBody Company company) {
+        Company addedCompany = adminFacade.addCompany(company);
+
+        ResponseDTO responseDTO = new ResponseDTO(
+                new CompanyDTO(addedCompany.getId(), addedCompany.getName(),
+                        addedCompany.getEmail()), true, "Company added!"
+        );
+
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
-                "Company added");
+                responseDTO);
     }
 
     @PutMapping("/updateCompany")
