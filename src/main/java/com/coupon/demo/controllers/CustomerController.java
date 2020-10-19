@@ -18,14 +18,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
 
-    private CustomerFacade customerFacade;
-    private AuthenticationManager authenticationManager;
-    private JwtUtil jwtUtil;
+    private final CustomerFacade customerFacade;
+    private final JwtUtil jwtUtil;
 
 
     @GetMapping("/customers")
@@ -36,16 +36,15 @@ public class CustomerController {
     }
 
     @GetMapping("/customer")
-    public ResponseEntity<ResponseDTO<CustomerDTO>> getCustomerDetails(@RequestHeader("Authorization") String authHeader) {
-        Integer customerID = jwtUtil.extractID.apply(authHeader);
-        Customer customer = customerFacade.getCustomerDetails(Long.valueOf(customerID));
-        ResponseDTO<CustomerDTO> responseDTO = new ResponseDTO<CustomerDTO>(
-                new CustomerDTO(
-                        customer.getId(),
+    public ResponseEntity<ResponseDTO<Customer>> getCustomerDetails(@RequestHeader("Authorization") String authHeader) {
+        Long customerID = jwtUtil.extractID.apply(authHeader);
+        Customer customer = customerFacade.getCustomerDetails(customerID);
+        ResponseDTO<Customer> responseDTO = new ResponseDTO<Customer>(
+                new Customer(
                         customer.getFirstName(),
                         customer.getLastName(),
-                        customer.getEmail()),
-                true, "Successful"
+                        customer.getEmail()), "Customer",
+                true, "getCustomerDetails successful"
                 );
 
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(

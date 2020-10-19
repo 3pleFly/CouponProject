@@ -1,6 +1,7 @@
 package com.coupon.demo.controllers;
 
 import com.coupon.demo.dto.Login;
+import com.coupon.demo.dto.ResponseDTO;
 import com.coupon.demo.entities.Company;
 import com.coupon.demo.entities.Customer;
 import com.coupon.demo.facade.AdminFacade;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/public")
@@ -29,39 +31,55 @@ public class PublicController {
     private AuthenticationManager authenticationManager;
 
     @PostMapping("/admin")
-    public String authenticateAdmin(@RequestBody AuthRequest authRequest) throws Exception {
+    public ResponseEntity<ResponseDTO<String>> authenticateAdmin(@RequestBody AuthRequest authRequest) throws Exception {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
                     authRequest.getPassword()));
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException( "invalid username/password");
+
+            throw new RuntimeException("invalid username/password");
         }
-        return jwtUtil.encodeJwt(authRequest, Scope.ADMIN);
+        String jwt = jwtUtil.encodeJwt(authRequest, Scope.ADMIN);
+        ResponseDTO<String> responseDTO = new ResponseDTO<>(jwt,"Token", true, "Token " +
+                "generated " +
+                "successfully");
+
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
+                responseDTO);
     }
 
     @PostMapping("/company")
-    public String authenticateCompany(@RequestBody AuthRequest authRequest) throws Exception {
+    public ResponseEntity<ResponseDTO<String>> authenticateCompany(@RequestBody AuthRequest authRequest) throws Exception {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
                     authRequest.getPassword()));
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException( "invalid username/password");
+            throw new RuntimeException("invalid username/password");
         }
-        return jwtUtil.encodeJwt(authRequest, Scope.COMPANY);
+        String jwt = jwtUtil.encodeJwt(authRequest, Scope.COMPANY);
+        ResponseDTO<String> responseDTO = new ResponseDTO<>(jwt, "Token",true, "Token generated" +
+                " " +
+                "successfully");
+
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
+                responseDTO);
     }
 
     @PostMapping("/customer")
-    public String authenticateCustomer(@RequestBody AuthRequest authRequest) throws Exception {
+    public ResponseEntity<ResponseDTO<String>> authenticateCustomer(@RequestBody AuthRequest authRequest) throws Exception {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
                     authRequest.getPassword()));
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException( "invalid username/password");
+            throw new RuntimeException("invalid username/password");
         }
-        return jwtUtil.encodeJwt(authRequest, Scope.CUSTOMER);
+        String jwt = jwtUtil.encodeJwt(authRequest, Scope.CUSTOMER);
+        ResponseDTO<String> responseDTO = new ResponseDTO<>(jwt, "Token",true, "Token " +
+                "generated " +
+                "successfully");
+
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
+                responseDTO);
     }
 }
 

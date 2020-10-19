@@ -1,5 +1,6 @@
 package com.coupon.demo.configuration;
 
+import com.coupon.demo.configuration.filter.ExceptionHandlerFilter;
 import com.coupon.demo.configuration.filter.JwtFilter;
 import com.coupon.demo.model.Scope;
 import com.coupon.demo.service.details.AdminDetailsService;
@@ -14,7 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -26,6 +27,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private CustomerDetailsService customerDetailsService;
     private CompanyDetailsService companyDetailsService;
     private JwtFilter jwtFilter;
+    private ExceptionHandlerFilter exceptionHandlerFilter;
 
     @Autowired
     public void setCompanyDetailsService(CompanyDetailsService companyDetailsService) {
@@ -47,19 +49,25 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.jwtFilter = jwtFilter;
     }
 
+    @Autowired
+    public void setExceptionHandlerFilter(ExceptionHandlerFilter exceptionHandlerFilter) {
+        this.exceptionHandlerFilter = exceptionHandlerFilter;
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
-                .userDetailsService(companyDetailsService).and()
-                .userDetailsService(customerDetailsService).and()
-                .userDetailsService(adminDetailsService);
+                .userDetailsService(companyDetailsService).passwordEncoder(passwordEncoder())
+                .and()
+                .userDetailsService(customerDetailsService).passwordEncoder(passwordEncoder())
+                .and()
+                .userDetailsService(adminDetailsService).passwordEncoder(passwordEncoder());
     }
 
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable().cors().disable()
+        http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/public/**").permitAll()
                 .antMatchers("/companies/**").hasAnyRole(Scope.COMPANY.name(), Scope.ADMIN.name())
@@ -72,13 +80,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http.addFilterBefore(exceptionHandlerFilter, jwtFilter.getClass());
+
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Override
     @Bean

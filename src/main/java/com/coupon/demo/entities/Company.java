@@ -1,5 +1,6 @@
 package com.coupon.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -17,6 +18,7 @@ public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false)
+    @JsonIgnore
     private Long id;
 
     @Column(name = "name", length = 30, nullable = false, updatable = false, unique = true)
@@ -25,7 +27,8 @@ public class Company {
     @Column(name = "email", length = 100, nullable = false,  unique = true)
     private String email;
 
-    @Column(name = "password", length = 50, nullable = false)
+    @Column(name = "password", length = 200, nullable = false)
+    @JsonIgnore
     private String password;
 
     @OneToMany(mappedBy = "company", fetch = FetchType.EAGER)
@@ -35,5 +38,10 @@ public class Company {
         this.name = name;
         this.email = email;
         this.password = password;
+    }
+
+    public Company(String name, String email) {
+        this.name = name;
+        this.email = email;
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -43,7 +44,7 @@ public class AdminController {
 
         ResponseDTO responseDTO = new ResponseDTO(
                 new CompanyDTO(addedCompany.getId(), addedCompany.getName(),
-                        addedCompany.getEmail()), true, "Company added!"
+                        addedCompany.getEmail()),"Exception", true, "Company added!"
         );
 
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(

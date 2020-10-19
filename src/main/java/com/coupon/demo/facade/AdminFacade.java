@@ -7,6 +7,7 @@ import com.coupon.demo.service.dao.CategoryDao;
 import com.coupon.demo.service.dao.CompanyDao;
 import com.coupon.demo.service.dao.CustomerDao;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,12 +21,15 @@ public class AdminFacade {
 //    private CouponDao couponDao;
     private CategoryDao categoryDao;
     private CustomerDao customerDao;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public Company addCompany(Company company) {
+        company.setPassword(bCryptPasswordEncoder.encode(company.getPassword()));
         return companyDao.addCompany(company);
     }
 
     public Company updateCompany(Company company) {
+        company.setPassword(bCryptPasswordEncoder.encode(company.getPassword()));
         return companyDao.updateCompany(company);
     }
 
@@ -43,10 +47,12 @@ public class AdminFacade {
     }
 
     public Customer addCustomer(Customer customer) {
+        customer.setPassword(bCryptPasswordEncoder.encode(customer.getPassword()));
         return customerDao.addCustomer(customer);
     }
 
     public Customer updateCustomer(Customer customer) {
+        customer.setPassword(bCryptPasswordEncoder.encode(customer.getPassword()));
         return customerDao.updateCustomer(customer);
     }
 

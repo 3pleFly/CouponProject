@@ -1,5 +1,5 @@
 package com.coupon.demo.entities;
 
 public enum CategoryType {
-    ELECTRICITY, FOOD, RESTAURANT, VACATION, SWIMMING
+    HIKING, RESTAURANT, VACATION, SWIMMING, BIKES
 }
