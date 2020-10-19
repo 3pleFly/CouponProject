@@ -99,7 +99,7 @@ public class JwtUtil {
                     .parseClaimsJws(jwt)
                     .getBody();
         } catch (Exception e) {
-            throw new RuntimeException("Token decoding problem-" + e.getMessage());
+            throw new RuntimeException("Token decoding problem: " + e.getMessage());
         }
         return claims;
     }

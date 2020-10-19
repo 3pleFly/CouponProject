@@ -18,7 +18,6 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Id", updatable = false)
-    @JsonIgnore
     private Long id;
 
     @Column(name = "first_name", length = 30, nullable = false)

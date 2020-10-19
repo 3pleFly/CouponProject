@@ -66,10 +66,15 @@ public class AdminController {
     }
 
     @GetMapping("/companies")
-    public ResponseEntity<String> getAllCompanies() {
-//        List<Company> companies = adminFacade.getAllCompanies();
+    public ResponseEntity<ResponseDTO<List<Company>>> getAllCompanies() {
+        List<Company> companies = adminFacade.getAllCompanies();
+        ResponseDTO<List<Company>> responseDTO =
+                new ResponseDTO<>(
+                        companies, "Company", true, "getAllCompanies successful"
+                );
+
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
-                "all companies...");
+                responseDTO);
     }
 
     @GetMapping("/company/{id}")

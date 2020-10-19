@@ -1,5 +1,7 @@
 package com.coupon.demo.dto;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -25,15 +27,6 @@ public class ResponseDTO<T> {
         this.classType = classType;
     }
 
-    @Override
-    public String toString() {
-        return "ResponseDTO{" +
-                t.getClass().getSimpleName() + t +
-                ", success=" + success +
-                ", message='" + message + '\'' +
-                ", classType='" + classType + '\'' +
-                '}';
-    }
 
     public String convertToJson() throws JsonProcessingException {
         if (this == null) {
