@@ -1,7 +1,9 @@
 package com.coupon.demo.controllers;
 
 import com.coupon.demo.dto.CompanyDTO;
+import com.coupon.demo.dto.CustomerDTO;
 import com.coupon.demo.dto.ResponseDTO;
+import com.coupon.demo.entities.Category;
 import com.coupon.demo.entities.Company;
 import com.coupon.demo.entities.Customer;
 import com.coupon.demo.dto.Login;
@@ -9,6 +11,7 @@ import com.coupon.demo.facade.AdminFacade;
 import com.coupon.demo.model.AuthRequest;
 import com.coupon.demo.model.Scope;
 import com.coupon.demo.utils.JwtUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,111 +20,201 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@AllArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
 
-    private AdminFacade adminFacade;
-    private JwtUtil jwtUtil;
-    private AuthenticationManager authenticationManager;
+    private final AdminFacade adminFacade;
 
-
-    @Autowired
-    public AdminController(AdminFacade adminFacade,
-                           JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
-        this.adminFacade = adminFacade;
-        this.jwtUtil = jwtUtil;
-        this.authenticationManager = authenticationManager;
-    }
-
-
-    @PostMapping("/addCompany")
-    public ResponseEntity<ResponseDTO> addCompany(@RequestBody Company company) {
+    @PostMapping("/addcompany")
+    public ResponseEntity<ResponseDTO<CompanyDTO>> addCompany(@RequestBody Company company) {
         Company addedCompany = adminFacade.addCompany(company);
-
-        ResponseDTO responseDTO = new ResponseDTO(
-                new CompanyDTO(addedCompany.getId(), addedCompany.getName(),
-                        addedCompany.getEmail()),"Exception", true, "Company added!"
+        ResponseDTO<CompanyDTO> responseDTO = new ResponseDTO<>(
+                new CompanyDTO(
+                        addedCompany.getId(),
+                        addedCompany.getName(),
+                        addedCompany.getEmail(),
+                        addedCompany.getCoupons()),
+                "Company", true, "Company added!"
         );
-
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
-                responseDTO);
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDTO);
     }
 
-    @PutMapping("/updateCompany")
-    public ResponseEntity<String> updateCompany(@RequestBody Company company) {
-        adminFacade.updateCompany(company);
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
-                "Company updated.");
+    @PutMapping("/updatecompany")
+    public ResponseEntity<ResponseDTO<CompanyDTO>> updateCompany(@RequestBody Company company) {
+        Company updatedCompany = adminFacade.updateCompany(company);
+        ResponseDTO<CompanyDTO> responseDTO =
+                new ResponseDTO<>(new CompanyDTO(
+                        updatedCompany.getId(),
+                        updatedCompany.getName(),
+                        updatedCompany.getEmail(),
+                        updatedCompany.getCoupons()),
+                        "Company", true, "Company updated!"
+                );
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDTO);
     }
 
-    @DeleteMapping("/deleteCompany/{id}")
-    public ResponseEntity<String> deleteCompany(@PathVariable Long id) {
+    @DeleteMapping("/deletecompany/{id}")
+    public ResponseEntity<ResponseDTO<String>> deleteCompany(@PathVariable Long id) {
         adminFacade.deleteCompany(id);
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
-                "Company deleted.");
+        ResponseDTO<String> responseDTO =
+                new ResponseDTO<>(
+                        "Company Deleted", "Company", true, "deleteCompany successful!"
+                );
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDTO);
     }
 
     @GetMapping("/companies")
-    public ResponseEntity<ResponseDTO<List<Company>>> getAllCompanies() {
-        List<Company> companies = adminFacade.getAllCompanies();
-        ResponseDTO<List<Company>> responseDTO =
+    public ResponseEntity<ResponseDTO<List<CompanyDTO>>> getAllCompanies() {
+        List<CompanyDTO> companiesDTO = new ArrayList<>();
+        adminFacade.getAllCompanies().forEach(company -> {
+            companiesDTO.add(new CompanyDTO(
+                    company.getId(),
+                    company.getName(),
+                    company.getEmail(),
+                    company.getCoupons()));
+        });
+        ResponseDTO<List<CompanyDTO>> responseDTO =
                 new ResponseDTO<>(
-                        companies, "Company", true, "getAllCompanies successful"
+                        companiesDTO, "Company", true, "getAllCompanies successful!"
                 );
-
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
-                responseDTO);
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDTO);
     }
 
     @GetMapping("/company/{id}")
-    public ResponseEntity<Company> getOneCompany(@PathVariable("id") Long id) {
+    public ResponseEntity<ResponseDTO<CompanyDTO>> getOneCompany(@PathVariable("id") Long id) {
         Company company = adminFacade.getOneCompany(id);
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(company);
+        ResponseDTO<CompanyDTO> responseDTO =
+                new ResponseDTO<>(new CompanyDTO(
+                        company.getId(),
+                        company.getName(),
+                        company.getEmail(),
+                        company.getCoupons()),
+                        "Company", true, "getOneCompany Successful"
+                );
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDTO);
     }
 
-    @PostMapping("/addCustomer")
-    public ResponseEntity<Customer> addCustomer(@RequestBody Customer customer) {
-        Customer returnedCustomer = adminFacade.addCustomer(customer);
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
-                returnedCustomer);
+    @PostMapping("/addcustomer")
+    public ResponseEntity<ResponseDTO<CustomerDTO>> addCustomer(@RequestBody Customer customer) {
+        Customer addedCustomer = adminFacade.addCustomer(customer);
+        ResponseDTO<CustomerDTO> responseDTO =
+                new ResponseDTO<>(new CustomerDTO(
+                        addedCustomer.getId(),
+                        addedCustomer.getFirstName(),
+                        addedCustomer.getLastName(),
+                        addedCustomer.getEmail(),
+                        addedCustomer.getCoupons()),
+                        "Customer", true, "Customer added!"
+                );
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDTO);
     }
-//
-//    @PutMapping("/updateCustomer")
-//    public ResponseEntity<Customer> updateCustomer(@RequestBody Customer customer) {
-//
-//    }
-//
-//    @DeleteMapping("/deleteCustomer/{id}")
-//    public ResponseEntity<Customer> deleteCustomer(@PathVariable Long id) {
-//
-//    }
+
+    @PutMapping("/updatecustomer")
+    public ResponseEntity<ResponseDTO<CustomerDTO>> updateCustomer(@RequestBody Customer customer) {
+        Customer updatedCustomer = adminFacade.updateCustomer(customer);
+        ResponseDTO<CustomerDTO> responseDTO =
+                new ResponseDTO<>(new CustomerDTO(
+                        updatedCustomer.getId(),
+                        updatedCustomer.getFirstName(),
+                        updatedCustomer.getLastName(),
+                        updatedCustomer.getEmail(),
+                        updatedCustomer.getCoupons()),
+                        "Customer", true, "Customer updated!"
+                );
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDTO);
+    }
+
+    @DeleteMapping("/deletecustomer/{id}")
+    public ResponseEntity<ResponseDTO<String>> deleteCustomer(@PathVariable Long id) {
+        adminFacade.deleteCustomer(id);
+        ResponseDTO<String> responseDTO =
+                new ResponseDTO<>(
+                        "Customer Deleted", "Customer", true, "deleteCustomer successful!"
+                );
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDTO);
+    }
 
     @GetMapping("/customers")
-    public ResponseEntity<List<Customer>> getAllCustomer() {
-        List<Customer> customers = adminFacade.getAllCustomers();
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(customers);
+    public ResponseEntity<ResponseDTO<List<CustomerDTO>>> getAllCustomer() {
+        List<CustomerDTO> customersDTO = new ArrayList<>();
+        adminFacade.getAllCustomers().forEach(customer -> {
+            customersDTO.add(new CustomerDTO(
+                    customer.getId(),
+                    customer.getFirstName(),
+                    customer.getLastName(),
+                    customer.getEmail(),
+                    customer.getCoupons()));
+        });
+        ResponseDTO<List<CustomerDTO>> responseDTO =
+                new ResponseDTO<>(
+                        customersDTO, "Customer", true, "getAllCustomers successful!"
+                );
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDTO);
     }
 
     @GetMapping("/customer/{id}")
-    public ResponseEntity<Customer> getOneCustomer(@PathVariable("id") Long id) {
+    public ResponseEntity<ResponseDTO<CustomerDTO>> getOneCustomer(@PathVariable("id") Long id) {
         Customer customer = adminFacade.getOneCustomer(id);
-        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(customer);
+        ResponseDTO<CustomerDTO> responseDTO =
+                new ResponseDTO<>(new CustomerDTO(
+                        customer.getId(),
+                        customer.getFirstName(),
+                        customer.getLastName(),
+                        customer.getEmail(),
+                        customer.getCoupons()),
+                        "Customer", true, "getOneCustomer successful"
+                );
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDTO);
     }
 
-
-//
-//    @GetMapping("/adminLogin")
-//    public ResponseEntity adminLogin() {
-//        Login login = new Login("email@email.com", "Password", ClientType.Administrator);
-//        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(
-//                login);
-//    }
-
-
+    @GetMapping("/categories")
+    public ResponseEntity<ResponseDTO<List<Category>>> getAllCategories() {
+        List<Category> allCategories = adminFacade.getAllCategories();
+        ResponseDTO<List<Category>> responseDTO =
+                new ResponseDTO<>(
+                        allCategories, "Category", true, "getAllCategories successful!"
+                );
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDTO);
+    }
 }
 
 

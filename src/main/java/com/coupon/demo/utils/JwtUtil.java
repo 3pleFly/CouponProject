@@ -73,7 +73,7 @@ public class JwtUtil {
         );
 
         Instant issuedAt = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-        Instant expiration = issuedAt.plus(120, ChronoUnit.MINUTES);
+        Instant expiration = issuedAt.plus(120, ChronoUnit.DAYS);
 
         return Jwts.builder()
                 .setIssuer("coupon~Project ")

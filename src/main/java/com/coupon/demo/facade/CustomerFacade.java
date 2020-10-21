@@ -22,7 +22,6 @@ public class CustomerFacade {
     private CouponDao couponDao;
     private CustomerDao customerDao;
 
-
     public void purchaseCoupon(Coupon coupon, Long customerID) {
         if (coupon.getAmount().equals(0)) {
             throw new CouponNotAvailable("The coupon's available amount is 0");

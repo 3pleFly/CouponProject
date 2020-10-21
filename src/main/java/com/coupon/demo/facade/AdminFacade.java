@@ -72,5 +72,8 @@ public class AdminFacade {
         return categoryDao.addCategory(category);
     }
 
+    public List<Category> getAllCategories() {
+        return categoryDao.getAllCategories();
+    }
 
 }

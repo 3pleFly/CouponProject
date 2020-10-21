@@ -27,7 +27,6 @@ public class Company {
     private String email;
 
     @Column(name = "password", length = 200, nullable = false)
-    @JsonIgnore
     private String password;
 
     @OneToMany(mappedBy = "company", fetch = FetchType.EAGER)
@@ -39,8 +38,10 @@ public class Company {
         this.password = password;
     }
 
-    public Company(String name, String email) {
+    public Company(Long id, String name, String email, List<Coupon> coupons) {
+        this.id = id;
         this.name = name;
         this.email = email;
+        this.coupons = coupons;
     }
 }

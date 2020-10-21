@@ -30,7 +30,6 @@ public class Customer {
     private String email;
 
     @Column(name = "password", length = 200, nullable = false)
-    @JsonIgnore
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
