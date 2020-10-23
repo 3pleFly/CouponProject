@@ -16,9 +16,8 @@ import java.util.List;
 @Service
 public class CompanyFacade {
 
-    private CompanyDao companyDao;
-    private CouponDao couponDao;
-    private CustomerDao customerDao;
+    private final CompanyDao companyDao;
+    private final CouponDao couponDao;
 
     public void addCoupon(Coupon coupon) {
         couponDao.addCoupon(coupon);

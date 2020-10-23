@@ -2,6 +2,7 @@ package com.coupon.demo.service.dao;
 
 import com.coupon.demo.entities.Company;
 import com.coupon.demo.entities.Customer;
+import com.coupon.demo.exception.AlreadyExists;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CustomerRepository;
 import lombok.AllArgsConstructor;
@@ -20,11 +21,18 @@ public class CustomerDao {
     }
 
     public Customer addCustomer(Customer customer) {
+        if (customerRepository.findByEmail(customer.getEmail()).isPresent()) {
+            throw new AlreadyExists("Customer email already exists: " + customer.getEmail());
+        }
         return customerRepository.save(customer);
     }
 
     public Customer updateCustomer(Customer customer) {
-        return customerRepository.save(customer);
+        try {
+            return customerRepository.save(customer);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     public void deleteCustomer(Long customerId) {

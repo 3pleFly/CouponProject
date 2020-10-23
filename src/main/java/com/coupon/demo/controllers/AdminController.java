@@ -7,12 +7,17 @@ import com.coupon.demo.entities.Category;
 import com.coupon.demo.entities.Company;
 import com.coupon.demo.entities.Customer;
 import com.coupon.demo.dto.Login;
+import com.coupon.demo.exception.AlreadyExists;
+import com.coupon.demo.exception.BadUpdate;
+import com.coupon.demo.exception.NotFound;
 import com.coupon.demo.facade.AdminFacade;
 import com.coupon.demo.model.AuthRequest;
 import com.coupon.demo.model.Scope;
 import com.coupon.demo.utils.JwtUtil;
 import lombok.AllArgsConstructor;
+import org.hibernate.exception.GenericJDBCException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,124 +36,202 @@ public class AdminController {
 
     private final AdminFacade adminFacade;
 
+
     @PostMapping("/addcompany")
     public ResponseEntity<ResponseDTO<CompanyDTO>> addCompany(@RequestBody Company company) {
-        Company addedCompany = adminFacade.addCompany(company);
-        ResponseDTO<CompanyDTO> responseDTO = new ResponseDTO<>(
-                new CompanyDTO(
-                        addedCompany.getId(),
-                        addedCompany.getName(),
-                        addedCompany.getEmail(),
-                        addedCompany.getCoupons()),
-                "Company", true, "Company added!"
-        );
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(responseDTO);
+        try {
+            Company addedCompany = adminFacade.addCompany(company);
+            ResponseDTO<CompanyDTO> responseDTO = new ResponseDTO<>(
+                    new CompanyDTO(
+                            addedCompany.getId(),
+                            addedCompany.getName(),
+                            addedCompany.getEmail(),
+                            addedCompany.getCoupons()),
+                    "Company", true, "Company added!"
+            );
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        } catch (AlreadyExists e) {
+            ResponseDTO<CompanyDTO> responseDTO = new ResponseDTO<>(
+                    null, e.getClass().getSimpleName(), false, e.getMessage()
+            );
+            return ResponseEntity
+                    .status(409)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        }
+
     }
 
     @PutMapping("/updatecompany")
     public ResponseEntity<ResponseDTO<CompanyDTO>> updateCompany(@RequestBody Company company) {
-        Company updatedCompany = adminFacade.updateCompany(company);
-        ResponseDTO<CompanyDTO> responseDTO =
-                new ResponseDTO<>(new CompanyDTO(
-                        updatedCompany.getId(),
-                        updatedCompany.getName(),
-                        updatedCompany.getEmail(),
-                        updatedCompany.getCoupons()),
-                        "Company", true, "Company updated!"
-                );
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(responseDTO);
+        try {
+            Company updatedCompany = adminFacade.updateCompany(company);
+            ResponseDTO<CompanyDTO> responseDTO =
+                    new ResponseDTO<>(new CompanyDTO(
+                            updatedCompany.getId(),
+                            updatedCompany.getName(),
+                            updatedCompany.getEmail(),
+                            updatedCompany.getCoupons()),
+                            "Company", true, "Company updated!"
+                    );
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        } catch (BadUpdate e) {
+            ResponseDTO<CompanyDTO> responseDTO = new ResponseDTO<>(
+                    null, e.getClass().getSimpleName(), false, e.getMessage()
+            );
+            return ResponseEntity
+                    .status(409)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        }
     }
 
     @DeleteMapping("/deletecompany/{id}")
     public ResponseEntity<ResponseDTO<String>> deleteCompany(@PathVariable Long id) {
-        adminFacade.deleteCompany(id);
-        ResponseDTO<String> responseDTO =
-                new ResponseDTO<>(
-                        "Company Deleted", "Company", true, "deleteCompany successful!"
-                );
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(responseDTO);
+        try {
+            adminFacade.deleteCompany(id);
+            ResponseDTO<String> responseDTO =
+                    new ResponseDTO<>(
+                            "Company Deleted", "Company", true, "deleteCompany successful!"
+                    );
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        } catch (Exception e) {
+            ResponseDTO<String> responseDTO = new ResponseDTO<>(
+                    null, e.getClass().getSimpleName(), false, e.getMessage()
+            );
+            return ResponseEntity
+                    .status(409)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        }
     }
 
     @GetMapping("/companies")
     public ResponseEntity<ResponseDTO<List<CompanyDTO>>> getAllCompanies() {
-        List<CompanyDTO> companiesDTO = new ArrayList<>();
-        adminFacade.getAllCompanies().forEach(company -> {
-            companiesDTO.add(new CompanyDTO(
-                    company.getId(),
-                    company.getName(),
-                    company.getEmail(),
-                    company.getCoupons()));
-        });
-        ResponseDTO<List<CompanyDTO>> responseDTO =
-                new ResponseDTO<>(
-                        companiesDTO, "Company", true, "getAllCompanies successful!"
-                );
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(responseDTO);
+        try {
+            List<CompanyDTO> companiesDTO = new ArrayList<>();
+            adminFacade.getAllCompanies().forEach(company -> {
+                companiesDTO.add(new CompanyDTO(
+                        company.getId(),
+                        company.getName(),
+                        company.getEmail(),
+                        company.getCoupons()));
+            });
+            ResponseDTO<List<CompanyDTO>> responseDTO =
+                    new ResponseDTO<>(
+                            companiesDTO, "Company", true, "getAllCompanies successful!"
+                    );
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        } catch (Exception e) {
+            ResponseDTO<List<CompanyDTO>> responseDTO =
+                    new ResponseDTO<>(
+                            null, e.getClass().getSimpleName(), false, e.getMessage()
+                    );
+            return ResponseEntity
+                    .status(500)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        }
     }
 
     @GetMapping("/company/{id}")
     public ResponseEntity<ResponseDTO<CompanyDTO>> getOneCompany(@PathVariable("id") Long id) {
-        Company company = adminFacade.getOneCompany(id);
-        ResponseDTO<CompanyDTO> responseDTO =
-                new ResponseDTO<>(new CompanyDTO(
-                        company.getId(),
-                        company.getName(),
-                        company.getEmail(),
-                        company.getCoupons()),
-                        "Company", true, "getOneCompany Successful"
-                );
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(responseDTO);
+        try {
+            Company company = adminFacade.getOneCompany(id);
+            ResponseDTO<CompanyDTO> responseDTO =
+                    new ResponseDTO<>(new CompanyDTO(
+                            company.getId(),
+                            company.getName(),
+                            company.getEmail(),
+                            company.getCoupons()),
+                            "Company", true, "getOneCompany Successful"
+                    );
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        } catch (NotFound e) {
+            ResponseDTO<CompanyDTO> responseDTO =
+                    new ResponseDTO<>(
+                            null, e.getClass().getSimpleName(), false, e.getMessage()
+                    );
+            return ResponseEntity
+                    .status(404)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        }
     }
 
     @PostMapping("/addcustomer")
     public ResponseEntity<ResponseDTO<CustomerDTO>> addCustomer(@RequestBody Customer customer) {
-        Customer addedCustomer = adminFacade.addCustomer(customer);
-        ResponseDTO<CustomerDTO> responseDTO =
-                new ResponseDTO<>(new CustomerDTO(
-                        addedCustomer.getId(),
-                        addedCustomer.getFirstName(),
-                        addedCustomer.getLastName(),
-                        addedCustomer.getEmail(),
-                        addedCustomer.getCoupons()),
-                        "Customer", true, "Customer added!"
-                );
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(responseDTO);
+        try {
+            Customer addedCustomer = adminFacade.addCustomer(customer);
+            ResponseDTO<CustomerDTO> responseDTO =
+                    new ResponseDTO<>(new CustomerDTO(
+                            addedCustomer.getId(),
+                            addedCustomer.getFirstName(),
+                            addedCustomer.getLastName(),
+                            addedCustomer.getEmail(),
+                            addedCustomer.getCoupons()),
+                            "Customer", true, "Customer added!"
+                    );
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        } catch (AlreadyExists e) {
+            ResponseDTO<CustomerDTO> responseDTO =
+                    new ResponseDTO<>(
+                            null, e.getClass().getSimpleName(), false, e.getMessage()
+                    );
+            return ResponseEntity
+                    .status(409)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        }
     }
+
 
     @PutMapping("/updatecustomer")
     public ResponseEntity<ResponseDTO<CustomerDTO>> updateCustomer(@RequestBody Customer customer) {
-        Customer updatedCustomer = adminFacade.updateCustomer(customer);
-        ResponseDTO<CustomerDTO> responseDTO =
-                new ResponseDTO<>(new CustomerDTO(
-                        updatedCustomer.getId(),
-                        updatedCustomer.getFirstName(),
-                        updatedCustomer.getLastName(),
-                        updatedCustomer.getEmail(),
-                        updatedCustomer.getCoupons()),
-                        "Customer", true, "Customer updated!"
-                );
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(responseDTO);
+        try {
+            Customer updatedCustomer = adminFacade.updateCustomer(customer);
+            ResponseDTO<CustomerDTO> responseDTO =
+                    new ResponseDTO<>(new CustomerDTO(
+                            updatedCustomer.getId(),
+                            updatedCustomer.getFirstName(),
+                            updatedCustomer.getLastName(),
+                            updatedCustomer.getEmail(),
+                            updatedCustomer.getCoupons()),
+                            "Customer", true, "Customer updated!"
+                    );
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        } catch (RuntimeException e) {
+            System.out.println("CAUGHT: "  + e.getMessage());
+            ResponseDTO<CustomerDTO> responseDTO =
+                    new ResponseDTO<>(
+                            null, e.getClass().getSimpleName(), false, e.getMessage()
+                    );
+            return ResponseEntity
+                    .status(409)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        }
     }
 
     @DeleteMapping("/deletecustomer/{id}")

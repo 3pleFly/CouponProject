@@ -3,6 +3,7 @@ package com.coupon.demo.facade;
 import com.coupon.demo.entities.Category;
 import com.coupon.demo.entities.Company;
 import com.coupon.demo.entities.Customer;
+import com.coupon.demo.exception.AlreadyExists;
 import com.coupon.demo.service.dao.CategoryDao;
 import com.coupon.demo.service.dao.CompanyDao;
 import com.coupon.demo.service.dao.CustomerDao;
@@ -17,15 +18,15 @@ import java.util.List;
 @Service
 public class AdminFacade {
 
-    private CompanyDao companyDao;
-//    private CouponDao couponDao;
-    private CategoryDao categoryDao;
-    private CustomerDao customerDao;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final CompanyDao companyDao;
+    private final CategoryDao categoryDao;
+    private final CustomerDao customerDao;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public Company addCompany(Company company) {
         company.setPassword(bCryptPasswordEncoder.encode(company.getPassword()));
         return companyDao.addCompany(company);
+
     }
 
     public Company updateCompany(Company company) {
@@ -52,6 +53,9 @@ public class AdminFacade {
     }
 
     public Customer updateCustomer(Customer customer) {
+        if(customer.getPassword() == null) {
+            customer.setPassword(customerDao.getOneCustomer(customer.getId()).getPassword());
+        }
         customer.setPassword(bCryptPasswordEncoder.encode(customer.getPassword()));
         return customerDao.updateCustomer(customer);
     }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CouponRepository extends JpaRepository<Coupon, Long> {
@@ -40,5 +41,6 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
             " ?2")
     List<Coupon> findAllByCustomerAndMaxPrice(Long id, double maxPrice);
 
+    List<Coupon> findAllByTitle(String title);
 
 }

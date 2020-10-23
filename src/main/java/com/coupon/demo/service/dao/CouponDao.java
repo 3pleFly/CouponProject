@@ -4,6 +4,8 @@ import com.coupon.demo.entities.Category;
 import com.coupon.demo.entities.Company;
 import com.coupon.demo.entities.Coupon;
 import com.coupon.demo.entities.Customer;
+import com.coupon.demo.exception.AlreadyExists;
+import com.coupon.demo.exception.BadUpdate;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import com.coupon.demo.repositories.CustomerRepository;
@@ -21,10 +23,20 @@ public class CouponDao {
     private CompanyRepository companyRepository;
 
     public Coupon addCoupon(Coupon coupon) {
+        couponRepository.findAllByTitle(coupon.getTitle()).forEach(returnedCoupons -> {
+            if (coupon.getCompany().equals(returnedCoupons.getCompany())) {
+                throw new AlreadyExists("Coupon already exists for this company, and by this " +
+                        "title: " + coupon.getTitle());
+            }
+        });
         return couponRepository.save(coupon);
     }
 
     public Coupon updateCoupon(Coupon coupon) {
+        if (!couponRepository.findById(coupon.getId()).get().getCompany()
+                .equals(coupon.getCompany())) {
+            throw new BadUpdate("Cannot change coupon's company: " + coupon.getCompany());
+        }
         return couponRepository.save(coupon);
     }
 

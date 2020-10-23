@@ -19,43 +19,43 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-
-    @ExceptionHandler({LoginFailed.class})
-    public final ResponseEntity<Object> handleException(Exception ex, WebRequest request) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", "Login failed");
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler({DataAccessException.class})
-    public ResponseEntity<Object> handleSQLErrors(DataAccessException ex) {
-        SQLException sqlEx = (SQLException) ex.getRootCause();
-        switch (sqlEx.getErrorCode()) {
-            case 1062:
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("You submitted conflicting" +
-                        " entries, duplicate entries...");
-            case 1048:
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Some of the columns were " +
-                        "null");
-            default:
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                        "Internal database error");
-        }
-    }
-
-    @ExceptionHandler({RuntimeException.class})
-    public ResponseEntity<Object> handleRunTimeExceptions(RuntimeException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ex.getMessage());
-    }
-
-    @ExceptionHandler({UsernameNotFoundException.class})
-    public ResponseEntity<Object> handleUsernameNotFoundExceptions(RuntimeException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                ex.getMessage());
-    }
+//
+//    @ExceptionHandler({LoginFailed.class})
+//    public final ResponseEntity<Object> handleException(Exception ex, WebRequest request) {
+//        Map<String, Object> body = new LinkedHashMap<>();
+//        body.put("timestamp", LocalDateTime.now());
+//        body.put("message", "Login failed");
+//
+//        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+//    }
+//
+//    @ExceptionHandler({DataAccessException.class})
+//    public ResponseEntity<Object> handleSQLErrors(DataAccessException ex) {
+//        SQLException sqlEx = (SQLException) ex.getRootCause();
+//        switch (sqlEx.getErrorCode()) {
+//            case 1062:
+//                return ResponseEntity.status(HttpStatus.CONFLICT).body("You submitted conflicting" +
+//                        " entries, duplicate entries...");
+//            case 1048:
+//                return ResponseEntity.status(HttpStatus.CONFLICT).body("Some of the columns were " +
+//                        "null");
+//            default:
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+//                        "Internal database error");
+//        }
+//    }
+//
+//    @ExceptionHandler({RuntimeException.class})
+//    public ResponseEntity<Object> handleRunTimeExceptions(RuntimeException ex) {
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//                ex.getMessage());
+//    }
+//
+//    @ExceptionHandler({UsernameNotFoundException.class})
+//    public ResponseEntity<Object> handleUsernameNotFoundExceptions(RuntimeException ex) {
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//                ex.getMessage());
+//    }
 }
 
 
