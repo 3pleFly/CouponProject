@@ -43,7 +43,7 @@ public class CustomerController {
                 new Customer(
                         customer.getFirstName(),
                         customer.getLastName(),
-                        customer.getEmail()), "Customer",
+                        customer.getEmail()),
                 true, "getCustomerDetails successful"
                 );
 

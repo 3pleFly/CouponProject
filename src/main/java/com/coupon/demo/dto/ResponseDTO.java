@@ -18,14 +18,15 @@ public class ResponseDTO<T> {
     private T t;
     private boolean success;
     private String message;
-    private String classType;
+    private int httpErrorCode;
 
-    public ResponseDTO(T t, String classType ,boolean success, String message) {
+
+    public ResponseDTO(T t ,boolean success, String message) {
         this.t = t;
         this.success = success;
         this.message = message;
-        this.classType = classType;
     }
+
 
 
     public String convertToJson() throws JsonProcessingException {

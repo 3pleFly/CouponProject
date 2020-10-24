@@ -39,16 +39,16 @@ public class PublicController {
                             authRequest.getPassword()));
         } catch (Exception e) {
             ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                    e.getMessage(), e.getClass().getSimpleName(), false, "Token generation " +
+                    e.getMessage(), false, "Token generation " +
                     "unsuccessful");
             return ResponseEntity
-                    .ok()
+                    .status(401)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(responseDTO);
         }
         String jwt = jwtUtil.encodeJwt(authRequest, Scope.ADMIN);
         ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                jwt, "Token", true, "Token generated successfully");
+                jwt, true, "Token generated successfully");
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -63,16 +63,16 @@ public class PublicController {
                     authRequest.getPassword()));
         } catch (Exception e) {
             ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                    e.getMessage(), e.getClass().getSimpleName(), false, "Token generation " +
+                    e.getMessage(), false, "Token generation " +
                     "unsuccessful");
             return ResponseEntity
-                    .ok()
+                    .status(401)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(responseDTO);
         }
         String jwt = jwtUtil.encodeJwt(authRequest, Scope.COMPANY);
         ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                jwt, "Token", true, "Token generated successfully");
+                jwt, true, "Token generated successfully");
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -87,16 +87,16 @@ public class PublicController {
                     authRequest.getPassword()));
         } catch (Exception e) {
             ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                    e.getMessage(), e.getClass().getSimpleName(), false, "Token generation " +
+                    e.getMessage(), false, "Token generation " +
                     "unsuccessful");
             return ResponseEntity
-                    .ok()
+                    .status(401)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(responseDTO);
         }
         String jwt = jwtUtil.encodeJwt(authRequest, Scope.CUSTOMER);
         ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                jwt, "Token", true, "Token generated successfully");
+                jwt, true, "Token generated successfully");
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)

@@ -7,11 +7,12 @@ import com.coupon.demo.exception.NotFound;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class CompanyDao {
@@ -36,7 +37,7 @@ public class CompanyDao {
 
     public Company updateCompany(Company company) {
         if (!companyRepository.findById(company.getId()).get().getName().equals(company.getName())) {
-            throw new BadUpdate("Cannot change company name" + company.getName());
+            throw new BadUpdate("Cannot change company name: " + company.getName());
         }
         return companyRepository.save(company);
     }
@@ -52,11 +53,10 @@ public class CompanyDao {
     }
 
     public Company getOneCompany(Long id) {
-        try {
-            return companyRepository.findById(id).get();
-        } catch (NotFound e) {
-            throw new NotFound("Company by ID:" + id + " was not found.");
+        if (!companyRepository.existsById(id)) {
+            throw new NotFound("Company by ID: " + id + " does not exist.");
         }
+        return companyRepository.findById(id).get();
     }
 
 }
