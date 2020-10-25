@@ -1,15 +1,11 @@
 package com.coupon.demo.service.dao;
 
 import com.coupon.demo.entities.Category;
-import com.coupon.demo.entities.CategoryType;
-import com.coupon.demo.entities.Company;
-import com.coupon.demo.entities.Coupon;
 import com.coupon.demo.exception.AlreadyExists;
 import com.coupon.demo.exception.MissingAttributes;
 import com.coupon.demo.exception.MissingCategoryType;
 import com.coupon.demo.exception.NotFound;
 import com.coupon.demo.repositories.CategoryRepository;
-import com.coupon.demo.repositories.CouponRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,8 +22,8 @@ public class CategoryDao {
 
     public Category addCategory(Category category) {
         checkNull(category);
-        if (categoryRepository.existsByCategory(category.getCategory())) {
-            throw new AlreadyExists("Category already exists: " + category.getCategory().name());
+        if (categoryRepository.existsByCategory(category.getCategory())){
+            throw new AlreadyExists("Category already exists: " + category.getCategory());
         }
         return categoryRepository.save(category);
     }
@@ -70,11 +66,4 @@ public class CategoryDao {
         }
     }
 
-    private void checkCategoryType(CategoryType category) {
-        List<Enum> enumValues = Arrays.asList(CategoryType.values());
-        if (!enumValues.contains(category)) {
-            throw new MissingCategoryType("This category is not recognized in the database, " +
-                    "please");
-        }
-    }
 }

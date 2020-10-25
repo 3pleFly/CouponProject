@@ -42,7 +42,6 @@ public class CouponDao {
 
     public Coupon updateCoupon(CouponDTO couponDTO) {
         checkCouponExists(couponDTO.getId());
-        checkNull(couponDTO);
         checkCharacterLength(couponDTO);
         Coupon coupon = convertToCoupon(couponDTO);
         if (!couponRepository.findById(coupon.getId()).get().getCompany()

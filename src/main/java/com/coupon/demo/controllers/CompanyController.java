@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -28,6 +29,7 @@ import java.util.List;
 public class CompanyController {
 
     private final CompanyFacade companyFacade;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/addcoupon")
     public ResponseEntity<ResponseDTO<Coupon>> addCoupon(@RequestBody CouponDTO couponDTO) {
@@ -78,8 +80,9 @@ public class CompanyController {
     }
 
 
-    @GetMapping("/{companyID}")
-    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getAllCoupons(@PathVariable Long companyID) {
+    @GetMapping("/details/coupons")
+    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCompanyCoupons(HttpServletRequest request) {
+        Long companyID = jwtUtil.extractID.apply(request.getHeader("authorization"));
         ResponseDTO<List<CouponDTO>> responseDTO = companyFacade.getCompanyCoupons(companyID);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
@@ -94,12 +97,12 @@ public class CompanyController {
         }
     }
 
-    @GetMapping("/{companyID}/category/{categoryID}")
-    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getAllCouponsByMaxPrice(
-            @PathVariable("companyID") Long companyID,
-            @PathVariable("categoryID") Long categoryID) {
-        ResponseDTO<List<CouponDTO>> responseDTO = companyFacade.getCompanyCoupons(categoryID,
-                companyID);
+    @GetMapping("/details/coupons/category/{categoryID}")
+    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCompanyCouponsByMaxPrice(HttpServletRequest request,
+            @PathVariable Long categoryID) {
+        Long companyID = jwtUtil.extractID.apply(request.getHeader("authorization"));
+        ResponseDTO<List<CouponDTO>> responseDTO =
+                companyFacade.getCompanyCoupons(categoryID, companyID);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
                     .ok()
@@ -113,10 +116,10 @@ public class CompanyController {
         }
     }
 
-    @GetMapping("/{companyID}/price/{maxprice}")
-    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getAllCouponByMaxPrice(
-            @PathVariable("companyID") Long companyID, @PathVariable("maxprice") double maxprice) {
-        System.out.println(maxprice);
+    @GetMapping("/details/coupons/price/{maxprice}")
+    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCompanyCouponsByMaxPrice(
+            HttpServletRequest request, @PathVariable double maxprice) {
+        Long companyID = jwtUtil.extractID.apply(request.getHeader("authorization"));
         ResponseDTO<List<CouponDTO>> responseDTO = companyFacade.getCompanyCoupons(maxprice,
                 companyID);
         if (responseDTO.isSuccess()) {
@@ -132,8 +135,9 @@ public class CompanyController {
         }
     }
 
-    @GetMapping("/details/{companyID}")
-    public ResponseEntity<ResponseDTO<CompanyDTO>> getCompanyDetails(@PathVariable Long companyID) {
+    @GetMapping("/details")
+    public ResponseEntity<ResponseDTO<CompanyDTO>> getCompanyDetails(HttpServletRequest request) {
+        Long companyID = jwtUtil.extractID.apply(request.getHeader("authorization"));
         ResponseDTO<CompanyDTO> responseDTO = companyFacade.getCompanyDetails(companyID);
         if (responseDTO.isSuccess()) {
             return ResponseEntity

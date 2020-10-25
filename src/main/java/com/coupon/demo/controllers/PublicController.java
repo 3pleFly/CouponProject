@@ -2,6 +2,7 @@ package com.coupon.demo.controllers;
 
 import com.coupon.demo.dto.Login;
 import com.coupon.demo.dto.ResponseDTO;
+import com.coupon.demo.entities.Category;
 import com.coupon.demo.entities.Company;
 import com.coupon.demo.entities.Customer;
 import com.coupon.demo.facade.AdminFacade;
@@ -9,8 +10,10 @@ import com.coupon.demo.model.AuthRequest;
 import com.coupon.demo.model.Scope;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CustomerRepository;
+import com.coupon.demo.service.dao.CategoryDao;
 import com.coupon.demo.utils.JwtUtil;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,14 +22,17 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/public")
 public class PublicController {
 
+    private final CategoryDao categoryDao;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
@@ -102,6 +108,19 @@ public class PublicController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(responseDTO);
     }
+
+    @GetMapping("/categories")
+    public ResponseDTO<List<Category>> getAllCategories() {
+        try {
+            return new ResponseDTO<>(categoryDao.getAllCategories(), true, "getAllCategories " +
+                    "successful");
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            return new ResponseDTO<>(
+                    null, false, "Internal error");
+        }
+    }
+
 }
 
 

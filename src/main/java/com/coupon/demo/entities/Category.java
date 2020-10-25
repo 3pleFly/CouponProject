@@ -19,11 +19,10 @@ public class Category {
     @ToString.Exclude
     private Long id;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false, unique = true)
-    private CategoryType category;
+    private String category;
 
-    public Category(CategoryType category) {
+    public Category(String category) {
         this.category = category;
     }
 }
