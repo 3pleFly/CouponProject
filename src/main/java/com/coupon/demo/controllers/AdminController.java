@@ -33,13 +33,10 @@ public class AdminController {
         ResponseDTO<CompanyDTO> responseDTO = adminFacade.addCompany(company);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(responseDTO);
+                    .ok(responseDTO);
         } else {
             return ResponseEntity
                     .status(responseDTO.getHttpErrorCode())
-                    .contentType(MediaType.APPLICATION_JSON)
                     .body(responseDTO);
         }
     }
@@ -190,30 +187,79 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/categories")
-    public ResponseEntity<ResponseDTO<List<Category>>> getAllCategories() {
-        try {
-            List<Category> allCategories = adminFacade.getAllCategories();
-            ResponseDTO<List<Category>> responseDTO =
-                    new ResponseDTO<>(
-                            allCategories, true, "getAllCategories successful!"
-                    );
+    @PostMapping("/addcategory")
+    public ResponseEntity<ResponseDTO<Category>> addCategory(@RequestBody Category category) {
+        ResponseDTO<Category> responseDTO = adminFacade.addCategory(category);
+        if (responseDTO.isSuccess()) {
             return ResponseEntity
-                    .ok()
+                    .ok(responseDTO);
+        } else {
+            return ResponseEntity
+                    .status(responseDTO.getHttpErrorCode())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(responseDTO);
-        } catch (RuntimeException e) {
-            log.error(e.getMessage());
-            ResponseDTO<List<Category>> responseDTO =
-                    new ResponseDTO<>(
-                            null, false, null
-                    );
+        }
+    }
+
+    @PutMapping("/updatecategory")
+    public ResponseEntity<ResponseDTO<Category>> updateCategory(@RequestBody Category category) {
+        ResponseDTO<Category> responseDTO = adminFacade.updateCategory(category);
+        if (responseDTO.isSuccess()) {
+            return ResponseEntity
+                    .ok(responseDTO);
+        } else {
+            return ResponseEntity
+                    .status(responseDTO.getHttpErrorCode())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        }
+    }
+
+    @DeleteMapping("/deletecategory/{categoryID}")
+    public ResponseEntity<ResponseDTO<String>> updateCategory(@PathVariable Long categoryID) {
+        ResponseDTO<String> responseDTO = adminFacade.deleteCategory(categoryID);
+        if (responseDTO.isSuccess()) {
+            return ResponseEntity
+                    .ok(responseDTO);
+        } else {
             return ResponseEntity
                     .status(500)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(responseDTO);
         }
     }
+
+    @GetMapping("/categories/{categoryID}")
+    public ResponseEntity<ResponseDTO<Category>> getOneCategory(@PathVariable Long categoryID) {
+        ResponseDTO<Category> responseDTO = adminFacade.getOneCategory(categoryID);
+        if (responseDTO.isSuccess()) {
+            return ResponseEntity
+                    .ok(responseDTO);
+        } else {
+            return ResponseEntity
+                    .status(responseDTO.getHttpErrorCode())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        }
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<ResponseDTO<List<Category>>> getAllCategories() {
+        ResponseDTO<List<Category>> responseDTO = adminFacade.getAllCategories();
+        if (responseDTO.isSuccess()) {
+            return ResponseEntity
+                    .ok(responseDTO);
+
+        } else {
+            return ResponseEntity
+                    .status(500)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        }
+    }
+
+
 }
+
 
 

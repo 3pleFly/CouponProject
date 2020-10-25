@@ -13,6 +13,6 @@ public class CompanyDTO {
     private Long id;
     private String name;
     private String email;
-    private List<Coupon> coupons;
+    private List<CouponDTO> coupons;
 
 }

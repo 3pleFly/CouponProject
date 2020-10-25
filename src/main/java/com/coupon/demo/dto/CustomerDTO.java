@@ -13,6 +13,6 @@ public class CustomerDTO {
     private String firstName;
     private String lastName;
     private String email;
-    private List<Coupon> coupons;
+    private List<CouponDTO> coupons;
 
 }

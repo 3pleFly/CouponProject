@@ -1,19 +1,19 @@
 package com.coupon.demo.facade;
 
 import com.coupon.demo.dto.CompanyDTO;
+import com.coupon.demo.dto.CouponDTO;
 import com.coupon.demo.dto.CustomerDTO;
 import com.coupon.demo.dto.ResponseDTO;
 import com.coupon.demo.entities.Category;
 import com.coupon.demo.entities.Company;
 import com.coupon.demo.entities.Customer;
-import com.coupon.demo.exception.AlreadyExists;
-import com.coupon.demo.exception.BadUpdate;
-import com.coupon.demo.exception.NotFound;
+import com.coupon.demo.exception.*;
 import com.coupon.demo.service.dao.CategoryDao;
 import com.coupon.demo.service.dao.CompanyDao;
 import com.coupon.demo.service.dao.CustomerDao;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,8 +39,9 @@ public class AdminFacade {
                     addedCompany.getId(),
                     addedCompany.getName(),
                     addedCompany.getEmail(),
-                    addedCompany.getCoupons()), true, "Company added");
-        } catch (AlreadyExists e) {
+                    CouponDTO.generateCouponDTO(addedCompany.getCoupons()))
+                    , true, "Company added");
+        } catch (AlreadyExists | MissingAttributes | LengthException e) {
             log.warn(e.getMessage());
             ResponseDTO<CompanyDTO> responseDTO = new ResponseDTO<>(
                     null, false, e.getMessage()
@@ -69,14 +70,22 @@ public class AdminFacade {
                     updatedCompany.getId(),
                     updatedCompany.getName(),
                     updatedCompany.getEmail(),
-                    updatedCompany.getCoupons()), true, "Company updated!"
+                    CouponDTO.generateCouponDTO(updatedCompany.getCoupons()))
+                    , true, "Company updated!"
             );
-        } catch (BadUpdate e) {
+        } catch (BadUpdate | AlreadyExists | MissingAttributes | LengthException e) {
             log.warn(e.getMessage());
             ResponseDTO<CompanyDTO> responseDTO = new ResponseDTO<>(
                     null, false, e.getMessage()
             );
             responseDTO.setHttpErrorCode(409);
+            return responseDTO;
+        } catch (NotFound e) {
+            log.warn(e.getMessage());
+            ResponseDTO<CompanyDTO> responseDTO = new ResponseDTO<>(
+                    null, false, e.getMessage()
+            );
+            responseDTO.setHttpErrorCode(404);
             return responseDTO;
         } catch (Exception e) {
             log.warn(e.getMessage());
@@ -94,10 +103,19 @@ public class AdminFacade {
             companyDao.deleteCompany(companyId);
             return new ResponseDTO<>(
                     null, true, "deleteCompany successful");
+        } catch (NotFound e) {
+            log.warn(e.getMessage());
+            ResponseDTO<String> responseDTO = new ResponseDTO<>(
+                    null, false, e.getMessage()
+            );
+            responseDTO.setHttpErrorCode(404);
+            return responseDTO;
         } catch (Exception e) {
             log.warn(e.getMessage());
-            return new ResponseDTO<>(
+            ResponseDTO<String> responseDTO = new ResponseDTO<>(
                     null, false, "Internal error");
+            responseDTO.setHttpErrorCode(500);
+            return responseDTO;
         }
     }
 
@@ -108,7 +126,7 @@ public class AdminFacade {
                     company.getId(),
                     company.getName(),
                     company.getEmail(),
-                    company.getCoupons()
+                    CouponDTO.generateCouponDTO(company.getCoupons())
             )));
             return new ResponseDTO<>(companyDTOList, true, "getAllCompanies successful");
         } catch (Exception e) {
@@ -125,7 +143,8 @@ public class AdminFacade {
                     getOneCompany.getId(),
                     getOneCompany.getName(),
                     getOneCompany.getEmail(),
-                    getOneCompany.getCoupons()), true, "getOneCompany success");
+                    CouponDTO.generateCouponDTO(getOneCompany.getCoupons()))
+                    , true, "getOneCompany success");
         } catch (NotFound e) {
             log.warn(e.getMessage());
             ResponseDTO<CompanyDTO> responseDTO = new ResponseDTO<>(null, false, e.getMessage());
@@ -148,12 +167,19 @@ public class AdminFacade {
                     addedCustomer.getFirstName(),
                     addedCustomer.getLastName(),
                     addedCustomer.getEmail(),
-                    addedCustomer.getCoupons()), true, "addCustomer successful");
-        } catch (AlreadyExists e) {
+                    CouponDTO.generateCouponDTO(addedCustomer.getCoupons())), true, "addCustomer " +
+                    "successful");
+        } catch (AlreadyExists | MissingAttributes | LengthException e) {
             log.warn(e.getMessage());
             ResponseDTO<CustomerDTO> responseDTO =
                     new ResponseDTO<>(null, false, e.getMessage());
             responseDTO.setHttpErrorCode(409);
+            return responseDTO;
+        } catch (NotFound e) {
+            log.warn(e.getMessage());
+            ResponseDTO<CustomerDTO> responseDTO =
+                    new ResponseDTO<>(null, false, e.getMessage());
+            responseDTO.setHttpErrorCode(404);
             return responseDTO;
         } catch (Exception e) {
             log.warn(e.getMessage());
@@ -177,14 +203,26 @@ public class AdminFacade {
                     updatedCustomer.getFirstName(),
                     updatedCustomer.getLastName(),
                     updatedCustomer.getEmail(),
-                    updatedCustomer.getCoupons()),
+                    CouponDTO.generateCouponDTO(updatedCustomer.getCoupons())),
                     true, "Customer updated!"
             );
+        } catch (LengthException | AlreadyExists e) {
+            log.warn(e.getMessage());
+            ResponseDTO<CustomerDTO> responseDTO = new ResponseDTO<>(null, false, e.getMessage());
+            responseDTO.setHttpErrorCode(409);
+            return responseDTO;
+        } catch (NotFound e) {
+            log.warn(e.getMessage());
+            ResponseDTO<CustomerDTO> responseDTO = new ResponseDTO<>(null, false, e.getMessage());
+            responseDTO.setHttpErrorCode(404);
+            return responseDTO;
         } catch (Exception e) {
             log.warn(e.getMessage());
-            return new ResponseDTO<>(
+            ResponseDTO<CustomerDTO> responseDTO = new ResponseDTO<>(
                     null, false, "Internal error"
             );
+            responseDTO.setHttpErrorCode(500);
+            return responseDTO;
         }
     }
 
@@ -193,11 +231,18 @@ public class AdminFacade {
             customerDao.deleteCustomer(customerId);
             return new ResponseDTO<>(
                     null, true, "deleteCustomer successful");
+        } catch (NotFound e) {
+            log.warn(e.getMessage());
+            ResponseDTO<String> responseDTO = new ResponseDTO<>(null, false, e.getMessage());
+            responseDTO.setHttpErrorCode(404);
+            return responseDTO;
         } catch (Exception e) {
             log.warn(e.getMessage());
-            return new ResponseDTO<>(
-                    null, false, "Internal error");
+            ResponseDTO<String> responseDTO = new ResponseDTO<>(null, false, "Internal error");
+            responseDTO.setHttpErrorCode(500);
+            return responseDTO;
         }
+
     }
 
     public ResponseDTO<List<CustomerDTO>> getAllCustomers() {
@@ -208,7 +253,7 @@ public class AdminFacade {
                     customer.getFirstName(),
                     customer.getLastName(),
                     customer.getEmail(),
-                    customer.getCoupons()
+                    CouponDTO.generateCouponDTO(customer.getCoupons())
             )));
             return new ResponseDTO<>(customerDTOList, true, "getAllCustomers successful");
         } catch (Exception e) {
@@ -225,7 +270,9 @@ public class AdminFacade {
                     getOneCustomer.getFirstName(),
                     getOneCustomer.getLastName(),
                     getOneCustomer.getEmail(),
-                    getOneCustomer.getCoupons()), true, "getOneCustomer successful");
+                    CouponDTO.generateCouponDTO(getOneCustomer.getCoupons())), true,
+                    "getOneCustomer " +
+                            "successful");
         } catch (NotFound e) {
             log.warn(e.getMessage());
             ResponseDTO<CustomerDTO> responseDTO = new ResponseDTO<>(
@@ -241,21 +288,91 @@ public class AdminFacade {
         }
     }
 
-    public Category addCategory(Category category) {
+    public ResponseDTO<Category> addCategory(Category category) {
         try {
-            return categoryDao.addCategory(category);
+            return new ResponseDTO<>(categoryDao.addCategory(category), true, "addCategory " +
+                    "successful");
+        } catch (AlreadyExists | MissingAttributes e) {
+            log.warn(e.getMessage());
+            ResponseDTO<Category> responseDTO = new ResponseDTO<>(
+                    null, false, e.getMessage());
+            responseDTO.setHttpErrorCode(409);
+            return responseDTO;
         } catch (Exception e) {
             log.warn(e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            ResponseDTO<Category> responseDTO = new ResponseDTO<>(
+                    null, false, e.getMessage());
+            responseDTO.setHttpErrorCode(500);
+            return responseDTO;
         }
     }
 
-    public List<Category> getAllCategories() {
+    public ResponseDTO<Category> updateCategory(Category category) {
         try {
-            return categoryDao.getAllCategories();
+            return new ResponseDTO<>(categoryDao.updateCategory(category), true,
+                    "updateCategory " +
+                            "successful");
+        } catch (AlreadyExists | MissingAttributes e) {
+            log.warn(e.getMessage());
+            ResponseDTO<Category> responseDTO = new ResponseDTO<>(
+                    null, false, e.getMessage());
+            responseDTO.setHttpErrorCode(409);
+            return responseDTO;
         } catch (Exception e) {
             log.warn(e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            ResponseDTO<Category> responseDTO = new ResponseDTO<>(
+                    null, false, e.getMessage());
+            responseDTO.setHttpErrorCode(500);
+            return responseDTO;
+        }
+    }
+
+    public ResponseDTO<String> deleteCategory(Long categoryID) {
+        try {
+            categoryDao.deleteCategory(categoryID);
+            return new ResponseDTO<>(null, true, "deleteCategory " +
+                    "successful");
+        } catch (NotFound e) {
+            log.warn(e.getMessage());
+            ResponseDTO<String> responseDTO = new ResponseDTO<>(
+                    null, false, e.getMessage());
+            responseDTO.setHttpErrorCode(404);
+            return responseDTO;
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            ResponseDTO<String> responseDTO = new ResponseDTO<>(
+                    null, false, "Internal error");
+            responseDTO.setHttpErrorCode(500);
+            return responseDTO;
+        }
+    }
+
+    public ResponseDTO<Category> getOneCategory(Long categoryID) {
+        try {
+            return new ResponseDTO<>(categoryDao.getOneCategory(categoryID), true,
+                    "getOneCategory" +
+                            " successful");
+        } catch (NotFound e) {
+            log.warn(e.getMessage());
+            ResponseDTO<Category> responseDTO = new ResponseDTO<>(null, false, e.getMessage());
+            responseDTO.setHttpErrorCode(404);
+            return responseDTO;
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            ResponseDTO<Category> responseDTO = new ResponseDTO<>(null, false, "Internal error");
+            responseDTO.setHttpErrorCode(500);
+            return responseDTO;
+        }
+    }
+
+    public ResponseDTO<List<Category>> getAllCategories() {
+        try {
+            return new ResponseDTO<>(categoryDao.getAllCategories(), true, "addCategory " +
+                    "successful");
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            return new ResponseDTO<>(
+                    null, false, "Internal error");
         }
     }
 

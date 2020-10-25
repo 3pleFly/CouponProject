@@ -24,31 +24,31 @@ public class Coupon {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id")   
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "company_id", updatable = false)
+    @JoinColumn(name = "company_id", updatable = false, nullable = false)
     @ToString.Exclude
     @JsonIgnore
     private Company company;
 
-    @Column(name = "title", length = 30)
+    @Column(name = "title", length = 30, nullable = false)
     private String title;
 
     @Column(name = "description", length = 100)
     private String description;
 
-    @Column(name = "start_date")
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    @Column(name = "end_date")
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    @Column(name = "amount")
+    @Column(name = "amount", nullable = false)
     private Integer amount;
 
-    @Column(name = "price")
+    @Column(name = "price", nullable = false)
     private Double price;
 
     @Column(name = "image")
@@ -59,6 +59,20 @@ public class Coupon {
     @JsonIgnore
     private List<Customer> customer;
 
+
+    public Coupon(Long id, Category category, Company company, String title, String description,
+                   LocalDate startDate, LocalDate endDate, Integer amount, Double price, String image) {
+        this.id = id;
+        this.category = category;
+        this.company = company;
+        this.title = title;
+        this.description = description;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.amount = amount;
+        this.price = price;
+        this.image = image;
+    }
 
     public Coupon(Category category, Company company, String title, String description, LocalDate startDate, LocalDate endDate, Integer amount, Double price, String image) {
         this.category = category;
