@@ -5,6 +5,7 @@ import com.coupon.demo.facade.AdminFacade;
 import com.coupon.demo.facade.CompanyFacade;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
+import com.coupon.demo.repositories.CustomerRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;

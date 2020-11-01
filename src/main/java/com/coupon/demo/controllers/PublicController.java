@@ -1,28 +1,16 @@
 package com.coupon.demo.controllers;
 
-import com.coupon.demo.dto.Login;
+import com.coupon.demo.dto.CouponDTO;
 import com.coupon.demo.dto.ResponseDTO;
 import com.coupon.demo.entities.Category;
-import com.coupon.demo.entities.Company;
-import com.coupon.demo.entities.Customer;
 import com.coupon.demo.facade.AdminFacade;
 import com.coupon.demo.model.AuthRequest;
-import com.coupon.demo.model.Scope;
-import com.coupon.demo.repositories.CompanyRepository;
-import com.coupon.demo.repositories.CustomerRepository;
-import com.coupon.demo.service.dao.CategoryDao;
-import com.coupon.demo.utils.JwtUtil;
+import com.coupon.demo.service.LoginAuthenticationService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -32,94 +20,50 @@ import java.util.List;
 @RequestMapping("/public")
 public class PublicController {
 
-    private final CategoryDao categoryDao;
-    private final JwtUtil jwtUtil;
-    private final AuthenticationManager authenticationManager;
+    private final AdminFacade adminFacade;
+    private final LoginAuthenticationService authenticationService;
 
-    @PostMapping("/admin")
-    public ResponseEntity<ResponseDTO<String>> authenticateAdmin(@RequestBody AuthRequest authRequest) {
-        try {
-            authenticationManager
-                    .authenticate(new UsernamePasswordAuthenticationToken(
-                            authRequest.getUsername(),
-                            authRequest.getPassword()));
-        } catch (Exception e) {
-            ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                    e.getMessage(), false, "Token generation " +
-                    "unsuccessful");
+    @PostMapping("/authenticate")
+    public ResponseEntity<ResponseDTO<String>> authenticate(@RequestBody AuthRequest authRequest) {
+
+        ResponseDTO<String> responseDTO = authenticationService.authenticate(authRequest);
+        if (responseDTO.isSuccess()) {
+            return ResponseEntity.ok(responseDTO);
+        } else {
             return ResponseEntity
-                    .status(401)
+                    .status(responseDTO.getHttpErrorCode())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(responseDTO);
         }
-        String jwt = jwtUtil.encodeJwt(authRequest, Scope.ADMIN);
-        ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                jwt, true, "Token generated successfully");
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(responseDTO);
-    }
-
-    @PostMapping("/company")
-    public ResponseEntity<ResponseDTO<String>> authenticateCompany(@RequestBody AuthRequest authRequest) throws Exception {
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    authRequest.getUsername(),
-                    authRequest.getPassword()));
-        } catch (Exception e) {
-            ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                    e.getMessage(), false, "Token generation " +
-                    "unsuccessful");
-            return ResponseEntity
-                    .status(401)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(responseDTO);
-        }
-        String jwt = jwtUtil.encodeJwt(authRequest, Scope.COMPANY);
-        ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                jwt, true, "Token generated successfully");
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(responseDTO);
-    }
-
-    @PostMapping("/customer")
-    public ResponseEntity<ResponseDTO<String>> authenticateCustomer(@RequestBody AuthRequest authRequest) throws Exception {
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    authRequest.getUsername(),
-                    authRequest.getPassword()));
-        } catch (Exception e) {
-            ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                    e.getMessage(), false, "Token generation " +
-                    "unsuccessful");
-            return ResponseEntity
-                    .status(401)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(responseDTO);
-        }
-        String jwt = jwtUtil.encodeJwt(authRequest, Scope.CUSTOMER);
-        ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                jwt, true, "Token generated successfully");
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(responseDTO);
     }
 
     @GetMapping("/categories")
-    public ResponseDTO<List<Category>> getAllCategories() {
-        try {
-            return new ResponseDTO<>(categoryDao.getAllCategories(), true, "getAllCategories " +
-                    "successful");
-        } catch (Exception e) {
-            log.warn(e.getMessage());
-            return new ResponseDTO<>(
-                    null, false, "Internal error");
+    public ResponseEntity<ResponseDTO<List<Category>>> getAllCategories() {
+        ResponseDTO<List<Category>> responseDTO = adminFacade.getAllCategories();
+        if (responseDTO.isSuccess()) {
+            return ResponseEntity.ok(responseDTO);
+        } else {
+            return ResponseEntity
+                    .status(500)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
         }
     }
+
+    @GetMapping("/coupons")
+    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getAllCoupons() {
+        ResponseDTO<List<CouponDTO>> responseDTO = adminFacade.getAllCoupons();
+        if (responseDTO.isSuccess()) {
+            return ResponseEntity.ok(responseDTO);
+        } else {
+            return ResponseEntity
+                    .status(500)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        }
+    }
+
+
 
 }
 

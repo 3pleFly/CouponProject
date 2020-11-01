@@ -40,8 +40,26 @@ public class CustomerController {
         }
     }
 
+    @DeleteMapping("/remove/{couponID}")
+    public ResponseEntity<ResponseDTO<String>> removePurchase(
+            @PathVariable Long couponID, HttpServletRequest request) {
+        Long customerID = jwtUtil.extractID.apply(request.getHeader("authorization"));
+        ResponseDTO<String> responseDTO = customerFacade.removePurchase(couponID, customerID);
+        if (responseDTO.isSuccess()) {
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        } else {
+            return ResponseEntity
+                    .status(responseDTO.getHttpErrorCode())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(responseDTO);
+        }
+    }
 
-    @GetMapping("/coupons/")
+
+    @GetMapping("/coupons")
     public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCustomerCoupons(HttpServletRequest request) {
         Long customerID = jwtUtil.extractID.apply(request.getHeader("authorization"));
         ResponseDTO<List<CouponDTO>> responseDTO =

@@ -1,14 +1,17 @@
 package com.coupon.demo.utils;
 
+import com.coupon.demo.exception.BadClaims;
+import com.coupon.demo.exception.BadToken;
+import com.coupon.demo.exception.NotFound;
 import com.coupon.demo.model.AuthRequest;
 import com.coupon.demo.model.Scope;
 import com.coupon.demo.model.Scope.*;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CustomerRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -26,39 +29,25 @@ import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 
 @Service
 public class JwtUtil {
+    private final CustomerRepository customerRepository;
+    private final CompanyRepository companyRepository;
+    private final String SECRET_KEY;
 
-    public Function<Claims, Object> extractScope = claims -> {
-        if (claims.get("scope") != null) {
-            return claims.get("scope");
-        }
-        throw new RuntimeException("Invalid claims " + claims.get("scope"));
-    };
-    public Function<Claims, Object> extractName = claims -> {
-        if (claims.getSubject() != null) {
-            return claims.getSubject();
-        }
-        throw new RuntimeException("Invalid claims " + claims.get("name"));
-    };
-    private CustomerRepository customerRepository;
-    private CompanyRepository companyRepository;
-    @Value("${secret}")
-    private String SECRET_KEY;
     public Function<String, Long> extractID = authHeader -> {
-        Claims claims = decodeJwt(authHeader.substring(7));
-        if (claims.getId() != null) {
-            try {
-                return Long.parseLong(claims.getId());
-            } catch (Exception e) {
-                throw new RuntimeException("Bad claims" + e.getMessage());
-            }
+        try {
+            Claims claims = decodeJwt(authHeader.substring(7));
+            return Long.parseLong(claims.getId());
+        } catch (Exception e) {
+            throw new BadClaims("Invalid claims ID");
         }
-        throw new RuntimeException("Invalid claims " + claims.get("id"));
     };
 
     @Autowired
-    public JwtUtil(CustomerRepository customerRepository, CompanyRepository companyRepository) {
+    public JwtUtil(CustomerRepository customerRepository, CompanyRepository companyRepository,
+                   @Value("${secret}")String SECRET_KEY) {
         this.customerRepository = customerRepository;
         this.companyRepository = companyRepository;
+        this.SECRET_KEY = SECRET_KEY;
     }
 
     public String encodeJwt(AuthRequest authRequest, Scope scope) {
@@ -66,15 +55,8 @@ public class JwtUtil {
 
         byte[] secretBytes = parseBase64Binary(SECRET_KEY);
         Key key = new SecretKeySpec(secretBytes, HS256.getJcaName());
-        Map<String, Object> claims = Map.of(
-                "scope", scope.name().toLowerCase(),
-                "name", authRequest.getUsername(),
-                "id", id
-        );
-
         Instant issuedAt = Instant.now().truncatedTo(ChronoUnit.SECONDS);
         Instant expiration = issuedAt.plus(120, ChronoUnit.DAYS);
-
         return Jwts.builder()
                 .setIssuer("coupon~Project ")
                 .setId(id.toString())
@@ -84,45 +66,55 @@ public class JwtUtil {
                 .claim("scope", scope.name().toLowerCase())
                 .signWith(HS256, key)
                 .compact();
-
-//        return Jwts.builder()
-//                .setClaims(claims)
-//                .signWith(HS256, key)
-//                .compact();
     }
 
     public Claims decodeJwt(String jwt) {
-        Claims claims = null;
         try {
+            Claims claims = null;
             claims = Jwts.parser()
                     .setSigningKey(parseBase64Binary(SECRET_KEY))
                     .parseClaimsJws(jwt)
                     .getBody();
-        } catch (Exception e) {
-            throw new RuntimeException("Token decoding problem: " + e.getMessage());
+            return claims;
+        } catch (ExpiredJwtException e) {
+            throw new JwtException("Token is expired");
+
+        } catch (MalformedJwtException e) {
+            throw new JwtException("Token is malformed");
+
+        } catch (SignatureException e) {
+            throw new JwtException("Wrong Jwt signature");
+
+        } catch (PrematureJwtException e) {
+            throw new JwtException("Token has not been activated yet");
+
+        } catch (UnsupportedJwtException e) {
+            throw new JwtException("Token is unsupported");
+
+        } catch (JwtException e) {
+            throw new JwtException("Bad Jwt");
         }
-        return claims;
     }
 
     public boolean validateToken(Claims claims, UserDetails userDetails) {
-        return extractName.apply(claims).equals(userDetails.getUsername());
+        return claims.getSubject().equals(userDetails.getUsername());
     }
 
     private Long findId(AuthRequest authRequest, Scope scope) {
         Long id;
-        switch (scope) {
-            case COMPANY:
-                id = companyRepository.findByEmail(authRequest.getUsername()).get().getId();
-                break;
-            case CUSTOMER:
-                id = customerRepository.findByEmail(authRequest.getUsername()).get().getId();
-                break;
-            case ADMIN:
-                id = 1L;
-                break;
-            default:
-                throw new RuntimeException("Undefined Scope" + scope);
-        }
+            switch (scope) {
+                case COMPANY:
+                    id = companyRepository.findByEmail(authRequest.getUsername()).get().getId();
+                    break;
+                case CUSTOMER:
+                    id = customerRepository.findByEmail(authRequest.getUsername()).get().getId();
+                    break;
+                case ADMIN:
+                    id = 1L;
+                    break;
+                default:
+                    id = null;
+            }
         return id;
     }
 }

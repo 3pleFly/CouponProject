@@ -6,20 +6,14 @@ import com.coupon.demo.dto.ResponseDTO;
 import com.coupon.demo.entities.Category;
 import com.coupon.demo.entities.Company;
 import com.coupon.demo.entities.Customer;
-import com.coupon.demo.exception.AlreadyExists;
-import com.coupon.demo.exception.BadUpdate;
-import com.coupon.demo.exception.NotFound;
 import com.coupon.demo.facade.AdminFacade;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
 @AllArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
@@ -37,6 +31,7 @@ public class AdminController {
         } else {
             return ResponseEntity
                     .status(responseDTO.getHttpErrorCode())
+                    .contentType(MediaType.APPLICATION_JSON)
                     .body(responseDTO);
         }
     }
@@ -46,9 +41,7 @@ public class AdminController {
         ResponseDTO<CompanyDTO> responseDTO = adminFacade.updateCompany(company);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(responseDTO);
+                    .ok(responseDTO);
         } else {
             return ResponseEntity
                     .status(responseDTO.getHttpErrorCode())
@@ -62,9 +55,7 @@ public class AdminController {
         ResponseDTO<String> responseDTO = adminFacade.deleteCompany(id);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(responseDTO);
+                    .ok(responseDTO);
         } else {
             return ResponseEntity
                     .status(500)
@@ -78,9 +69,7 @@ public class AdminController {
         ResponseDTO<List<CompanyDTO>> responseDTO = adminFacade.getAllCompanies();
         if (responseDTO.isSuccess()) {
             return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(responseDTO);
+                    .ok(responseDTO);
         } else {
             return ResponseEntity
                     .status(500)
@@ -94,9 +83,7 @@ public class AdminController {
         ResponseDTO<CompanyDTO> responseDTO = adminFacade.getOneCompany(id);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(responseDTO);
+                    .ok(responseDTO);
         } else {
             return ResponseEntity
                     .status(responseDTO.getHttpErrorCode())
@@ -110,9 +97,7 @@ public class AdminController {
         ResponseDTO<CustomerDTO> responseDTO = adminFacade.addCustomer(customer);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(responseDTO);
+                    .ok(responseDTO);
         } else {
             return ResponseEntity
                     .status(responseDTO.getHttpErrorCode())
@@ -127,9 +112,7 @@ public class AdminController {
         ResponseDTO<CustomerDTO> responseDTO = adminFacade.updateCustomer(customer);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(responseDTO);
+                    .ok(responseDTO);
         } else {
             return ResponseEntity
                     .status(responseDTO.getHttpErrorCode())
@@ -144,9 +127,7 @@ public class AdminController {
         ResponseDTO<String> responseDTO = adminFacade.deleteCustomer(id);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(responseDTO);
+                    .ok(responseDTO);
         } else {
             return ResponseEntity
                     .status(500)
@@ -160,9 +141,7 @@ public class AdminController {
         ResponseDTO<List<CustomerDTO>> responseDTO = adminFacade.getAllCustomers();
         if (responseDTO.isSuccess()) {
             return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(responseDTO);
+                    .ok(responseDTO);
         } else {
             return ResponseEntity
                     .status(500)
@@ -176,9 +155,7 @@ public class AdminController {
         ResponseDTO<CustomerDTO> responseDTO = adminFacade.getOneCustomer(id);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(responseDTO);
+                    .ok(responseDTO);
         } else {
             return ResponseEntity
                     .status(responseDTO.getHttpErrorCode())
@@ -249,7 +226,6 @@ public class AdminController {
         if (responseDTO.isSuccess()) {
             return ResponseEntity
                     .ok(responseDTO);
-
         } else {
             return ResponseEntity
                     .status(500)

@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -41,6 +42,7 @@ public class CouponDao {
     }
 
     public Coupon updateCoupon(CouponDTO couponDTO) {
+        checkNull(couponDTO);
         checkCouponExists(couponDTO.getId());
         checkCharacterLength(couponDTO);
         Coupon coupon = convertToCoupon(couponDTO);
@@ -48,6 +50,7 @@ public class CouponDao {
                 .equals(coupon.getCompany())) {
             throw new BadUpdate("Cannot change coupon's company: " + coupon.getCompany().getId());
         }
+
         return couponRepository.save(coupon);
     }
 
@@ -125,6 +128,21 @@ public class CouponDao {
         couponRepository.save(coupon);
     }
 
+    public void deleteCouponPurchase(Long couponID, Long customerID) {
+        checkCustomerExists(customerID);
+        checkCouponExists(couponID);
+        Customer customer = customerRepository.findById(customerID).get();
+        Coupon coupon = couponRepository.findById(couponID).get();
+        if(customer.getCoupons().remove(coupon)) {
+            coupon.setAmount(coupon.getAmount() + 1);
+            customerRepository.save(customer);
+            couponRepository.save(coupon);
+        } else {
+            throw new CouponNotAvailable("Cannot remove coupon since customer doesn't have it");
+        }
+    }
+
+
     public Coupon convertToCoupon(CouponDTO couponDTO) {
         return new Coupon(
                 couponDTO.getId(),
@@ -176,7 +194,4 @@ public class CouponDao {
         }
     }
 
-//    public void deleteCouponPurchase(Long customerID, Long couponID) {
-//
-//    }
 }

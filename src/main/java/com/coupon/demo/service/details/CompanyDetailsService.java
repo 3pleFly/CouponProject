@@ -3,6 +3,7 @@ package com.coupon.demo.service.details;
 import com.coupon.demo.model.Scope;
 import com.coupon.demo.model.details.CompanyDetails;
 import com.coupon.demo.repositories.CompanyRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,15 +15,11 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@AllArgsConstructor
 @Service
 public class CompanyDetailsService implements UserDetailsService {
 
     private CompanyRepository companyRepository;
-
-    @Autowired
-    public void setCompanyRepository(CompanyRepository companyRepository) {
-        this.companyRepository = companyRepository;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

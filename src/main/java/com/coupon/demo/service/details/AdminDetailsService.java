@@ -4,6 +4,7 @@ import com.coupon.demo.model.Scope;
 import com.coupon.demo.model.details.AdminDetails;
 import com.coupon.demo.model.details.CompanyDetails;
 import com.coupon.demo.repositories.CompanyRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,12 +20,15 @@ import java.util.Collection;
 @Service
 public class AdminDetailsService implements UserDetailsService {
 
-    @Value("${admin.username}")
     private String username;
-
-    @Value("${admin.password}")
     private String password;
 
+    @Autowired
+    public AdminDetailsService(@Value("${admin.username}")String username,
+                               @Value("${admin.password}")String password) {
+        this.username = username;
+        this.password = password;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -34,7 +38,7 @@ public class AdminDetailsService implements UserDetailsService {
             return new AdminDetails(username, password, authorities);
         } else {
             throw new UsernameNotFoundException(
-                    "email: " + username + " does not exist"
+                    "username: " + username + " does not exist"
             );
         }
     }

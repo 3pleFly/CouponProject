@@ -10,6 +10,7 @@ import com.coupon.demo.entities.Customer;
 import com.coupon.demo.exception.*;
 import com.coupon.demo.service.dao.CategoryDao;
 import com.coupon.demo.service.dao.CompanyDao;
+import com.coupon.demo.service.dao.CouponDao;
 import com.coupon.demo.service.dao.CustomerDao;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ public class AdminFacade {
     private final CompanyDao companyDao;
     private final CategoryDao categoryDao;
     private final CustomerDao customerDao;
+    private final CouponDao couponDao;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public ResponseDTO<CompanyDTO> addCompany(Company company) {
@@ -375,4 +377,27 @@ public class AdminFacade {
         }
     }
 
+    public ResponseDTO<List<CouponDTO>> getAllCoupons() {
+        try {
+            List<CouponDTO> couponDTOList = new ArrayList<>();
+            couponDao.getAllCoupons().forEach(coupon -> couponDTOList.add(new CouponDTO(
+                    coupon.getId(),
+                    coupon.getCategory().getId(),
+                    coupon.getCompany().getId(),
+                    coupon.getTitle(),
+                    coupon.getDescription(),
+                    coupon.getStartDate(),
+                    coupon.getEndDate(),
+                    coupon.getAmount(),
+                    coupon.getPrice(),
+                    coupon.getImage()
+            )));
+            return new ResponseDTO<>(couponDTOList, true, "getAllCoupons " +
+                    "successful");
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            return new ResponseDTO<>(
+                    null, false, "Internal error");
+        }
+    }
 }

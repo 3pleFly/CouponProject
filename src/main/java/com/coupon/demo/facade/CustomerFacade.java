@@ -9,6 +9,7 @@ import com.coupon.demo.entities.Customer;
 import com.coupon.demo.exception.AlreadyExists;
 import com.coupon.demo.exception.CouponExpired;
 import com.coupon.demo.exception.CouponNotAvailable;
+import com.coupon.demo.exception.NotFound;
 import com.coupon.demo.service.dao.CompanyDao;
 import com.coupon.demo.service.dao.CouponDao;
 import com.coupon.demo.service.dao.CustomerDao;
@@ -47,6 +48,30 @@ public class CustomerFacade {
             return responseDTO;
         }
     }
+
+    public ResponseDTO<String> removePurchase(Long couponID, Long customerID) {
+        try {
+            couponDao.deleteCouponPurchase(couponID, customerID);
+            return new ResponseDTO<>(null, true, "removePurchase successful");
+        } catch (CouponNotAvailable e) {
+            ResponseDTO<String> responseDTO = new ResponseDTO<>(
+                    null, false, e.getMessage());
+            responseDTO.setHttpErrorCode(409);
+            return responseDTO;
+        } catch (NotFound e) {
+            ResponseDTO<String> responseDTO = new ResponseDTO<>(
+                    null, false, e.getMessage());
+            responseDTO.setHttpErrorCode(404);
+            return responseDTO;
+        } catch (Exception e) {
+            log.warn(e.getMessage());
+            ResponseDTO<String> responseDTO = new ResponseDTO<>(
+                    null, false, "Internal error");
+            responseDTO.setHttpErrorCode(500);
+            return responseDTO;
+        }
+    }
+
 
     public ResponseDTO<List<CouponDTO>> getCustomerCoupons(Long customerID) {
         try {
