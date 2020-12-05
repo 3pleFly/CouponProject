@@ -2,10 +2,10 @@ package com.coupon.demo.controllers;
 
 import com.coupon.demo.dto.CouponDTO;
 import com.coupon.demo.dto.ResponseDTO;
-import com.coupon.demo.entities.Category;
+import com.coupon.demo.model.entities.Category;
 import com.coupon.demo.facade.AdminFacade;
 import com.coupon.demo.model.AuthRequest;
-import com.coupon.demo.service.LoginAuthenticationService;
+import com.coupon.demo.service.AuthenticationService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -14,18 +14,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/public")
 public class PublicController {
 
     private final AdminFacade adminFacade;
-    private final LoginAuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/authenticate")
     public ResponseEntity<ResponseDTO<String>> authenticate(@RequestBody AuthRequest authRequest) {
-
         ResponseDTO<String> responseDTO = authenticationService.authenticate(authRequest);
         if (responseDTO.isSuccess()) {
             return ResponseEntity.ok(responseDTO);

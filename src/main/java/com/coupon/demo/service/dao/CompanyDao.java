@@ -1,11 +1,11 @@
 package com.coupon.demo.service.dao;
 
-import com.coupon.demo.entities.Company;
+import com.coupon.demo.model.entities.Company;
 import com.coupon.demo.exception.*;
 import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CouponRepository;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +16,7 @@ public class CompanyDao {
 
     private final CompanyRepository companyRepository;
     private final CouponRepository couponRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public Company addCompany(Company company) {
         checkNull(company);
@@ -30,6 +31,7 @@ public class CompanyDao {
                 || company.getPassword().length() > 200) {
             throw new LengthException("The name, email, or password exceeds limit");
         }
+        company.setPassword(bCryptPasswordEncoder.encode(company.getPassword()));
         return companyRepository.save(company);
     }
 
@@ -50,6 +52,7 @@ public class CompanyDao {
                 || company.getPassword().length() > 200) {
             throw new LengthException("The email or password exceeds limit");
         }
+        company.setPassword(bCryptPasswordEncoder.encode(company.getPassword()));
         return companyRepository.save(company);
     }
 

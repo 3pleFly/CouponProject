@@ -1,4 +1,4 @@
-package com.coupon.demo.entities;
+package com.coupon.demo.model.entities;
 
 import lombok.*;
 

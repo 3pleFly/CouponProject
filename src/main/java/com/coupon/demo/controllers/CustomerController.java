@@ -4,7 +4,8 @@ import com.coupon.demo.dto.CouponDTO;
 import com.coupon.demo.dto.CustomerDTO;
 import com.coupon.demo.dto.ResponseDTO;
 import com.coupon.demo.facade.CustomerFacade;
-import com.coupon.demo.utils.JwtUtil;
+import com.coupon.demo.service.AuthenticationService;
+import com.coupon.demo.service.JwtService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,19 +14,18 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
 
     private final CustomerFacade customerFacade;
-    private final JwtUtil jwtUtil;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/purchase/{couponID}")
     public ResponseEntity<ResponseDTO<String>> purchaseCoupon(
-            @PathVariable Long couponID, HttpServletRequest request) {
-        Long customerID = jwtUtil.extractID.apply(request.getHeader("authorization"));
+            @PathVariable Long couponID) {
+        Long customerID = authenticationService.getPrincipalID();
         ResponseDTO<String> responseDTO = customerFacade.purchaseCoupon(couponID, customerID);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
@@ -40,10 +40,10 @@ public class CustomerController {
         }
     }
 
-    @DeleteMapping("/remove/{couponID}")
+    @PostMapping("/remove/{couponID}")
     public ResponseEntity<ResponseDTO<String>> removePurchase(
-            @PathVariable Long couponID, HttpServletRequest request) {
-        Long customerID = jwtUtil.extractID.apply(request.getHeader("authorization"));
+            @PathVariable Long couponID) {
+        Long customerID = authenticationService.getPrincipalID();
         ResponseDTO<String> responseDTO = customerFacade.removePurchase(couponID, customerID);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
@@ -60,8 +60,8 @@ public class CustomerController {
 
 
     @GetMapping("/coupons")
-    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCustomerCoupons(HttpServletRequest request) {
-        Long customerID = jwtUtil.extractID.apply(request.getHeader("authorization"));
+    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCustomerCoupons() {
+        Long customerID = authenticationService.getPrincipalID();
         ResponseDTO<List<CouponDTO>> responseDTO =
                 customerFacade.getCustomerCoupons(customerID);
         if (responseDTO.isSuccess()) {
@@ -77,12 +77,12 @@ public class CustomerController {
         }
     }
 
-    @GetMapping("/coupons/category/{categoryID}")
-    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCustomerCoupons(HttpServletRequest request,
-            @PathVariable("categoryID") Long categoryID) {
-        Long customerID = jwtUtil.extractID.apply(request.getHeader("authorization"));
+    @GetMapping("/coupons/category/{categoryName}")
+    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCustomerCoupons(
+            @PathVariable String categoryName) {
+        Long customerID = authenticationService.getPrincipalID();
         ResponseDTO<List<CouponDTO>> responseDTO =
-                customerFacade.getCustomerCoupons(categoryID, customerID);
+                customerFacade.getCustomerCoupons(categoryName, customerID);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
                     .ok()
@@ -97,9 +97,9 @@ public class CustomerController {
     }
 
     @GetMapping("/coupons/price/{maxprice}")
-    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCustomerCoupons(HttpServletRequest request,
+    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCustomerCoupons(
             @PathVariable("maxprice") double maxprice) {
-        Long customerID = jwtUtil.extractID.apply(request.getHeader("authorization"));
+        Long customerID = authenticationService.getPrincipalID();
         ResponseDTO<List<CouponDTO>> responseDTO =
                 customerFacade.getCustomerCoupons(maxprice, customerID);
         if (responseDTO.isSuccess()) {
@@ -117,8 +117,8 @@ public class CustomerController {
 
 
     @GetMapping("/details")
-    public ResponseEntity<ResponseDTO<CustomerDTO>> getCustomerDetails(HttpServletRequest request) {
-        Long customerID = jwtUtil.extractID.apply(request.getHeader("authorization"));
+    public ResponseEntity<ResponseDTO<CustomerDTO>> getCustomerDetails() {
+        Long customerID = authenticationService.getPrincipalID();
         ResponseDTO<CustomerDTO> responseDTO = customerFacade.getCustomerDetails(customerID);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
@@ -132,6 +132,4 @@ public class CustomerController {
                     .body(responseDTO);
         }
     }
-
-
 }

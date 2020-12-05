@@ -1,8 +1,8 @@
 package com.coupon.demo.service.dao;
 
 import com.coupon.demo.dto.CouponDTO;
-import com.coupon.demo.entities.Coupon;
-import com.coupon.demo.entities.Customer;
+import com.coupon.demo.model.entities.Coupon;
+import com.coupon.demo.model.entities.Customer;
 import com.coupon.demo.exception.*;
 import com.coupon.demo.repositories.CategoryRepository;
 import com.coupon.demo.repositories.CompanyRepository;
@@ -11,9 +11,11 @@ import com.coupon.demo.repositories.CustomerRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -32,10 +34,7 @@ public class CouponDao {
         Coupon coupon = convertToCoupon(couponDTO);
         couponRepository.findAllByTitle(coupon.getTitle()).forEach(returnedCoupons -> {
             if (coupon.getCompany().equals(returnedCoupons.getCompany())) {
-                throw new AlreadyExists("Coupon already exists for this company, and by this" +
-                        "(same)" +
-                        " " +
-                        "title: " + coupon.getTitle());
+                throw new AlreadyExists("Coupon already exists by the title" + coupon.getTitle());
             }
         });
         return couponRepository.save(coupon);
@@ -46,15 +45,13 @@ public class CouponDao {
         checkCouponExists(couponDTO.getId());
         checkCharacterLength(couponDTO);
         Coupon coupon = convertToCoupon(couponDTO);
-        if (!couponRepository.findById(coupon.getId()).get().getCompany()
-                .equals(coupon.getCompany())) {
+        if (!couponRepository.findById(coupon.getId()).get().getCompany().equals(coupon.getCompany())) {
             throw new BadUpdate("Cannot change coupon's company: " + coupon.getCompany().getId());
         }
-
         return couponRepository.save(coupon);
     }
 
-
+    @Transactional
     public void deleteCoupon(Long couponID) {
         checkCouponExists(couponID);
         couponRepository.deleteFromCvCByCouponId(couponID);
@@ -76,18 +73,17 @@ public class CouponDao {
         return companyRepository.findById(companyID).get().getCoupons();
     }
 
-    public List<Coupon> getCompanyCoupons(Long categoryID, Long companyID) {
+    public List<Coupon> getCompanyCoupons(String categoryName, Long companyID) {
         checkCompanyExists(companyID);
         return couponRepository.findAllByCompanyAndCategory(
                 companyRepository.findById(companyID).get(),
-                categoryRepository.findById(categoryID).get()
+                categoryRepository.findByCategory(categoryName).get()
         );
     }
 
     public List<Coupon> getCompanyCoupons(double maxPrice, Long companyID) {
         checkCompanyExists(companyID);
-        return couponRepository.findAllByCompanyAndMaxPrice(
-                companyRepository.findById(companyID).get(), maxPrice);
+        return couponRepository.findAllByCompanyAndMaxPrice(companyRepository.findById(companyID).get(), maxPrice);
     }
 
     public List<Coupon> getCustomerCoupons(Long customerID) {
@@ -95,11 +91,11 @@ public class CouponDao {
         return customerRepository.findById(customerID).get().getCoupons();
     }
 
-    public List<Coupon> getCustomerCoupons(Long categoryID, Long customerID) {
+    public List<Coupon> getCustomerCoupons(String categoryName, Long customerID) {
         checkCustomerExists(customerID);
         return couponRepository.findAllByCustomerAndCategory(
                 customerRepository.findById(customerID).get(),
-                categoryRepository.findById(categoryID).get());
+                categoryRepository.findByCategory(categoryName).get());
     }
 
     public List<Coupon> getCustomerCoupons(double maxPrice, Long customerID) {
@@ -112,13 +108,13 @@ public class CouponDao {
         checkCouponExists(couponID);
         Coupon coupon = getOneCoupon(couponID);
         if (coupon.getAmount().equals(0)) {
-            throw new CouponNotAvailable("The coupon's available amount is 0");
+            throw new CouponNotAvailable("Coupon's available amount is 0");
         }
         if (coupon.getEndDate().isBefore(LocalDate.now())) {
-            throw new CouponExpired("The coupon is expired");
+            throw new CouponExpired("Coupon is expired");
         }
         if (customerRepository.findById(customerID).get().getCoupons().contains(coupon)) {
-            throw new AlreadyExists("Customer already purchased this coupon");
+            throw new AlreadyExists("Customer already has this coupon");
         }
         Customer customer = customerRepository
                 .findById(customerID).get();
@@ -133,7 +129,7 @@ public class CouponDao {
         checkCouponExists(couponID);
         Customer customer = customerRepository.findById(customerID).get();
         Coupon coupon = couponRepository.findById(couponID).get();
-        if(customer.getCoupons().remove(coupon)) {
+        if (customer.getCoupons().remove(coupon)) {
             coupon.setAmount(coupon.getAmount() + 1);
             customerRepository.save(customer);
             couponRepository.save(coupon);
@@ -142,11 +138,10 @@ public class CouponDao {
         }
     }
 
-
     public Coupon convertToCoupon(CouponDTO couponDTO) {
         return new Coupon(
                 couponDTO.getId(),
-                categoryRepository.findById(couponDTO.getCategoryID()).get(),
+                categoryRepository.findByCategory(couponDTO.getCategoryName()).get(),
                 companyRepository.findById(couponDTO.getCompanyID()).get(),
                 couponDTO.getTitle(),
                 couponDTO.getDescription(),
@@ -157,16 +152,38 @@ public class CouponDao {
                 couponDTO.getImage());
     }
 
+    public List<CouponDTO> convertToCouponDTO(List<Coupon> couponList) {
+        List<CouponDTO> couponDTOs = new ArrayList<>();
+        couponList.forEach(coupon -> {
+           couponDTOs.add(convertToCouponDTO(coupon));
+        });
+        return couponDTOs;
+    }
+
+    public CouponDTO convertToCouponDTO(Coupon coupon) {
+        return new CouponDTO(
+                coupon.getId(),
+                coupon.getCategory().getCategory(),
+                coupon.getCompany().getId(),
+                coupon.getTitle(),
+                coupon.getDescription(),
+                coupon.getStartDate(),
+                coupon.getEndDate(),
+                coupon.getAmount(),
+                coupon.getPrice(),
+                coupon.getImage());
+    }
+
+
     private void checkNull(CouponDTO couponDTO) {
-        if (couponDTO.getCategoryID() == null ||
+        if (couponDTO.getCategoryName() == null ||
                 couponDTO.getCompanyID() == null ||
                 couponDTO.getTitle() == null ||
                 couponDTO.getStartDate() == null ||
                 couponDTO.getEndDate() == null ||
                 couponDTO.getAmount() == null ||
                 couponDTO.getPrice() == null) {
-            throw new MissingAttributes("The coupon is missing some attributes(price or " +
-                    "title, etc...)");
+            throw new MissingAttributes("The coupon is missing some attributes(price or category, title, etc...)");
         }
     }
 

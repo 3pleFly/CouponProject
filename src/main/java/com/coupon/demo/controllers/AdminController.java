@@ -1,11 +1,10 @@
 package com.coupon.demo.controllers;
-
 import com.coupon.demo.dto.CompanyDTO;
 import com.coupon.demo.dto.CustomerDTO;
 import com.coupon.demo.dto.ResponseDTO;
-import com.coupon.demo.entities.Category;
-import com.coupon.demo.entities.Company;
-import com.coupon.demo.entities.Customer;
+import com.coupon.demo.model.entities.Category;
+import com.coupon.demo.model.entities.Company;
+import com.coupon.demo.model.entities.Customer;
 import com.coupon.demo.facade.AdminFacade;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
@@ -15,14 +14,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @AllArgsConstructor
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
 
     private final AdminFacade adminFacade;
 
-    @PostMapping("/addcompany")
+    @PostMapping("/companies/add")
     public ResponseEntity<ResponseDTO<CompanyDTO>> addCompany(@RequestBody Company company) {
         ResponseDTO<CompanyDTO> responseDTO = adminFacade.addCompany(company);
         if (responseDTO.isSuccess()) {
@@ -36,7 +34,7 @@ public class AdminController {
         }
     }
 
-    @PutMapping("/updatecompany")
+    @PutMapping("/companies/update")
     public ResponseEntity<ResponseDTO<CompanyDTO>> updateCompany(@RequestBody Company company) {
         ResponseDTO<CompanyDTO> responseDTO = adminFacade.updateCompany(company);
         if (responseDTO.isSuccess()) {
@@ -50,7 +48,7 @@ public class AdminController {
         }
     }
 
-    @DeleteMapping("/deletecompany/{id}")
+    @DeleteMapping("/companies/delete/{id}")
     public ResponseEntity<ResponseDTO<String>> deleteCompany(@PathVariable Long id) {
         ResponseDTO<String> responseDTO = adminFacade.deleteCompany(id);
         if (responseDTO.isSuccess()) {
@@ -78,7 +76,7 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/company/{id}")
+    @GetMapping("/companies/company/{id}")
     public ResponseEntity<ResponseDTO<CompanyDTO>> getOneCompany(@PathVariable("id") Long id) {
         ResponseDTO<CompanyDTO> responseDTO = adminFacade.getOneCompany(id);
         if (responseDTO.isSuccess()) {
@@ -92,7 +90,7 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/addcustomer")
+    @PostMapping("/customers/add")
     public ResponseEntity<ResponseDTO<CustomerDTO>> addCustomer(@RequestBody Customer customer) {
         ResponseDTO<CustomerDTO> responseDTO = adminFacade.addCustomer(customer);
         if (responseDTO.isSuccess()) {
@@ -107,7 +105,7 @@ public class AdminController {
     }
 
 
-    @PutMapping("/updatecustomer")
+    @PutMapping("/customers/update")
     public ResponseEntity<ResponseDTO<CustomerDTO>> updateCustomer(@RequestBody Customer customer) {
         ResponseDTO<CustomerDTO> responseDTO = adminFacade.updateCustomer(customer);
         if (responseDTO.isSuccess()) {
@@ -121,7 +119,7 @@ public class AdminController {
         }
     }
 
-    @DeleteMapping("/deletecustomer/{id}")
+    @DeleteMapping("/customers/delete/{id}")
     public ResponseEntity<ResponseDTO<String>> deleteCustomer(@PathVariable Long id) {
 
         ResponseDTO<String> responseDTO = adminFacade.deleteCustomer(id);
@@ -150,7 +148,7 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/customer/{id}")
+    @GetMapping("/customers/customer/{id}")
     public ResponseEntity<ResponseDTO<CustomerDTO>> getOneCustomer(@PathVariable("id") Long id) {
         ResponseDTO<CustomerDTO> responseDTO = adminFacade.getOneCustomer(id);
         if (responseDTO.isSuccess()) {
@@ -164,7 +162,7 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/addcategory")
+    @PostMapping("/categories/add")
     public ResponseEntity<ResponseDTO<Category>> addCategory(@RequestBody Category category) {
         ResponseDTO<Category> responseDTO = adminFacade.addCategory(category);
         if (responseDTO.isSuccess()) {
@@ -178,7 +176,7 @@ public class AdminController {
         }
     }
 
-    @PutMapping("/updatecategory")
+    @PutMapping("/categories/update")
     public ResponseEntity<ResponseDTO<Category>> updateCategory(@RequestBody Category category) {
         ResponseDTO<Category> responseDTO = adminFacade.updateCategory(category);
         if (responseDTO.isSuccess()) {
@@ -192,8 +190,8 @@ public class AdminController {
         }
     }
 
-    @DeleteMapping("/deletecategory/{categoryID}")
-    public ResponseEntity<ResponseDTO<String>> updateCategory(@PathVariable Long categoryID) {
+    @DeleteMapping("/categories/delete/{categoryID}")
+    public ResponseEntity<ResponseDTO<String>> deleteCategory(@PathVariable Long categoryID) {
         ResponseDTO<String> responseDTO = adminFacade.deleteCategory(categoryID);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
@@ -206,7 +204,7 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/categories/{categoryID}")
+    @GetMapping("/categories/category/{categoryID}")
     public ResponseEntity<ResponseDTO<Category>> getOneCategory(@PathVariable Long categoryID) {
         ResponseDTO<Category> responseDTO = adminFacade.getOneCategory(categoryID);
         if (responseDTO.isSuccess()) {

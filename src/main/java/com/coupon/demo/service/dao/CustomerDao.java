@@ -1,12 +1,11 @@
 package com.coupon.demo.service.dao;
 
-import com.coupon.demo.entities.Company;
-import com.coupon.demo.entities.Customer;
+import com.coupon.demo.model.entities.Customer;
 import com.coupon.demo.exception.*;
-import com.coupon.demo.repositories.CompanyRepository;
 import com.coupon.demo.repositories.CustomerRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +16,7 @@ import java.util.List;
 public class CustomerDao {
 
     private final CustomerRepository customerRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public Customer addCustomer(Customer customer) {
         checkNull(customer);
@@ -24,35 +24,28 @@ public class CustomerDao {
         if (customerRepository.findByEmail(customer.getEmail()).isPresent()) {
             throw new AlreadyExists("Customer email already exists: " + customer.getEmail());
         }
-        customerRepository.findAllByFirstNameAndLastName(
-                customer.getFirstName(),
-                customer.getLastName()).forEach(customerByName -> {
-            if (customerByName.getId().equals(customer.getId())) {
-                throw new AlreadyExists("Customer by this name(first and last together) " +
-                        "already exists" + customer.getFirstName() + customer.getLastName());
-            }
-        });
+        if (customerRepository.findByFirstNameAndLastName(customer.getFirstName(), customer.getLastName())
+                .isPresent()) {
+            throw new AlreadyExists("Customer by this name(first and last together) " +
+                    "already exists" + customer.getFirstName() + customer.getLastName());
+        }
+        customer.setPassword(bCryptPasswordEncoder.encode(customer.getPassword()));
         return customerRepository.save(customer);
     }
 
     public Customer updateCustomer(Customer customer) {
+        checkNull(customer);
         checkExists(customer.getId());
         checkLengthLimit(customer);
-        customerRepository.findAllByEmail(customer.getEmail()).ifPresent(customers -> {
-            customers.forEach(customerBySameEmail -> {
-                if (!customerBySameEmail.getId().equals(customer.getId())) {
-                    throw new AlreadyExists("There is already a customer with the same email" + customer.getEmail());
-                }
-            });
-        });
-        customerRepository.findAllByFirstNameAndLastName(
-                customer.getFirstName(),
-                customer.getLastName()).forEach(customerByName -> {
-            if (!customerByName.getId().equals(customer.getId())) {
-                throw new AlreadyExists("Customer by this name(first and last together) " +
-                        "already exists" + customer.getFirstName() + customer.getLastName());
-            }
-        });
+        if (customerRepository.findByEmail(customer.getEmail()).isPresent()) {
+            throw new AlreadyExists("There is already a customer with the same email" + customer.getEmail());
+        }
+        if (customerRepository.findByFirstNameAndLastName(customer.getFirstName(), customer.getLastName())
+                .isPresent()) {
+            throw new AlreadyExists("Customer by this name(first and last together) " +
+                    "already exists  " + customer.getFirstName() + " " + customer.getLastName());
+        }
+        customer.setPassword(bCryptPasswordEncoder.encode(customer.getPassword()));
         return customerRepository.save(customer);
     }
 

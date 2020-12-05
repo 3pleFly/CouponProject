@@ -1,13 +1,11 @@
-package com.coupon.demo.model.details;
+package com.coupon.demo.model.userdetails;
 
-import com.coupon.demo.model.Scope;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 
 @AllArgsConstructor
 @Data

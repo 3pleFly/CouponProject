@@ -1,6 +1,6 @@
 package com.coupon.demo.repositories;
 
-import com.coupon.demo.entities.Customer;
+import com.coupon.demo.model.entities.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,7 +18,6 @@ public interface CustomerRepository extends JpaRepository<Customer,Long> {
 
     boolean existsByEmail(String email);
 
-    List<Customer> findAllByFirstNameAndLastName(String firstName, String lastName);
+    Optional<Customer> findByFirstNameAndLastName(String firstName, String lastName);
 
-    Optional<List<Customer>> findAllByEmail(String email);
 }

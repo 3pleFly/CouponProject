@@ -1,4 +1,4 @@
-package com.coupon.demo.model.details;
+package com.coupon.demo.model.userdetails;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

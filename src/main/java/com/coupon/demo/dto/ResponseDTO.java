@@ -27,16 +27,8 @@ public class ResponseDTO<T> {
         this.message = message;
     }
 
-
-
     public String convertToJson() throws JsonProcessingException {
-        if (this == null) {
-            return null;
-        }
         ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
         return mapper.writeValueAsString(this);
     }
 

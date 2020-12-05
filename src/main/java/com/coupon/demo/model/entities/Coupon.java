@@ -1,4 +1,4 @@
-package com.coupon.demo.entities;
+package com.coupon.demo.model.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;

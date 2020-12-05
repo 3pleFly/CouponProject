@@ -8,30 +8,30 @@ import com.coupon.demo.service.details.CompanyDetailsService;
 import com.coupon.demo.service.details.CustomerDetailsService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @AllArgsConstructor
 @Slf4j
@@ -44,43 +44,80 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final CompanyDetailsService companyDetailsService;
     private final JwtFilter jwtFilter;
 
+    /**
+     * Overriding AuthenticationManagerBuilder to specify which UserDetailsService to use
+     * for fetching the appropriate UserDetails from the database for authentication purposes.
+     * @param auth used for .authenticate() method to run over all the userDetailsService
+     *             until the authenticated user is found and matches it's passwords and
+     *             authorities.
+     */
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-
-        auth
-                .userDetailsService(companyDetailsService).passwordEncoder(passwordEncoder())
-                .and()
-                .userDetailsService(customerDetailsService).passwordEncoder(passwordEncoder())
-                .and()
-                .userDetailsService(adminDetailsService).passwordEncoder(NoOpPasswordEncoder.getInstance());
+    protected void configure(AuthenticationManagerBuilder auth) {
+        try {
+            auth
+                    .userDetailsService(companyDetailsService).passwordEncoder(passwordEncoder())
+                    .and()
+                    .userDetailsService(customerDetailsService).passwordEncoder(passwordEncoder())
+                    .and()
+                    .userDetailsService(adminDetailsService).passwordEncoder(NoOpPasswordEncoder.getInstance());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
-
+    /**
+     * Spring Security configuration
+     * 1 permitAll antMatcher for authentication and JWT creation.
+     * 3 secured, authority based antMatchers.
+     * .exceptionHandling() configures the @Bean authenticationEntryPoint() for authentication
+     * exceptions
+     *  .exceptionHandling() configures the @Bean accessDeniedHandler() for all AID exceptions with
+     *  already-authenticated users.
+     *
+     * addFilterBefore(jwtFilter) configures jwtFilter to be used before UsernamePasswordAuthenticationFilter
+     * The appropriate place to define JWT based authentication and authorization to allow
+     * and define principals through the system before proceeding with the rest of the filter
+     * chain line.
+     */
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable().authorizeRequests()
+    protected void configure(HttpSecurity http) {
+        try {
 
-                .antMatchers("/public/**").permitAll()
-                .antMatchers("/companies/**").hasAnyRole(Scope.COMPANY.name(), Scope.ADMIN.name())
-                .antMatchers("/customers/**").hasAnyRole(Scope.CUSTOMER.name(), Scope.ADMIN.name())
-                .antMatchers("/admin/**").hasRole(Scope.ADMIN.name())
-
-                .anyRequest().authenticated()
-                .and()
-                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
-                .and()
-                .exceptionHandling().accessDeniedHandler(accessDeniedHandler())
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+            http.cors().and().csrf().disable()
+                    .authorizeRequests()
+                    .antMatchers("/public/**").permitAll()
+                    .antMatchers("/companies/**").hasAnyAuthority(Scope.COMPANY.name(),
+                    Scope.ADMIN.name())
+                    .antMatchers("/customers/**").hasAnyAuthority(Scope.CUSTOMER.name(),
+                    Scope.ADMIN.name())
+                    .antMatchers("/admin/**").hasAuthority(Scope.ADMIN.name())
+                    .anyRequest().authenticated()
+                    .and()
+                    .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
+                    .and()
+                    .exceptionHandling().accessDeniedHandler(accessDeniedHandler())
+                    .and()
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+            http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
+    /**
+     * Configuring which passwordEncoder Spring Security will use to encode passwords.
+     * Also used for hashing passwords before updating or adding new principals.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+
+    /**
+     * Implementing an accessDeniedHandler to take over Spring Security's default 403
+     * To be used in cases where the principal is not anonymous but doesn't have authority.
+     */
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, e) -> {
@@ -88,42 +125,86 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             response.setStatus(403);
             response.setContentType("application/json");
             ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                    null, false, "Coupon ~Project: Access is denied!");
-            try {
-                String jsonResponseDTO = responseDTO.convertToJson();
-                response.getWriter().write(jsonResponseDTO);
-            } catch (IOException ex) {
-                log.error(ex.getMessage());
-            }
+                    null, false, "Access is denied, you don't have authority");
+            writeResponse(response, responseDTO);
         };
     }
 
+    /**
+     * Implemented bean to manually handle AuthenticationExceptions
+     * Sends a 401(unauthorized) on bad/no credentials
+     * Sends a 403 on any other exception
+     */
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
         return (request, response, e) -> {
-            log.error(e.getMessage());
-            response.setStatus(403);
-            response.setContentType("application/json");
-            ResponseDTO<String> responseDTO = new ResponseDTO<>(
-                    null, false, "Coupon ~Project: No Authentication");
-            responseDTO.setHttpErrorCode(403);
-            try {
-                String jsonResponseDTO = responseDTO.convertToJson();
-                response.getWriter().write(jsonResponseDTO);
-            } catch (IOException ex) {
-                log.error(ex.getMessage());
+            if (e.getClass().equals(InsufficientAuthenticationException.class)
+                    || e.getClass().equals(BadCredentialsException.class)) {
+                log.error(e.getMessage());
+                response.setStatus(401);
+                response.setContentType("application/json");
+                ResponseDTO<String> responseDTO = new ResponseDTO<>(
+                        null, false, "Bad Credentials");
+                responseDTO.setHttpErrorCode(401);
+                writeResponse(response, responseDTO);
+            } else {
+                log.error(e.getMessage());
+                response.setStatus(403);
+                response.setContentType("application/json");
+                ResponseDTO<String> responseDTO = new ResponseDTO<>(
+                        null, false, "Bad authentication");
+                responseDTO.setHttpErrorCode(403);
+                writeResponse(response, responseDTO);
             }
         };
     }
 
+    /**
+     *  Converts the responseDTO to json format to write on the response
+     * @param responseDTO to be written on the response
+     * @param response the object which the servlet can use to return data to the client.
+     */
+    private void writeResponse(HttpServletResponse response, ResponseDTO<String> responseDTO) {
+        try {
+            String jsonResponseDTO = responseDTO.convertToJson();
+            response.getWriter().write(jsonResponseDTO);
+        } catch (IOException ex) {
+            log.error(ex.getMessage());
+        }
+    }
+
+    /**
+     * Used for hashing passwords.
+     */
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+
+    /**
+     * AuthenticationManager bean is exposed to allow attempt authentication.
+     */
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
+    /**
+     * Allowing all origins, method requests, and 'Authorization' header through my application.
+     * @return Configured cors policy.
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        final CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+
 }

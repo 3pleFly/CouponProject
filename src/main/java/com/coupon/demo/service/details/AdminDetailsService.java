@@ -1,10 +1,7 @@
 package com.coupon.demo.service.details;
 
 import com.coupon.demo.model.Scope;
-import com.coupon.demo.model.details.AdminDetails;
-import com.coupon.demo.model.details.CompanyDetails;
-import com.coupon.demo.repositories.CompanyRepository;
-import lombok.AllArgsConstructor;
+import com.coupon.demo.model.userdetails.AdminDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,12 +17,11 @@ import java.util.Collection;
 @Service
 public class AdminDetailsService implements UserDetailsService {
 
-    private String username;
-    private String password;
+    private final String username;
+    private final String password;
 
     @Autowired
-    public AdminDetailsService(@Value("${admin.username}")String username,
-                               @Value("${admin.password}")String password) {
+    public AdminDetailsService(@Value("${admin.username}")String username, @Value("${admin.password}")String password) {
         this.username = username;
         this.password = password;
     }
@@ -33,13 +29,11 @@ public class AdminDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + Scope.ADMIN.name()));
+        authorities.add(new SimpleGrantedAuthority(Scope.ADMIN.name()));
         if (this.username.equals(username)) {
             return new AdminDetails(username, password, authorities);
         } else {
-            throw new UsernameNotFoundException(
-                    "username: " + username + " does not exist"
-            );
+            throw new UsernameNotFoundException("username: " + username + " does not exist");
         }
     }
 }

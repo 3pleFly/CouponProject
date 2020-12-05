@@ -1,7 +1,7 @@
 package com.coupon.demo.exception;
 
-public class BadToken extends RuntimeException {
-    public BadToken(String message) {
+public class BadScope extends RuntimeException {
+    public BadScope(String message) {
         super(message);
     }
 }

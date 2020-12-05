@@ -3,33 +3,24 @@ package com.coupon.demo.controllers;
 import com.coupon.demo.dto.CompanyDTO;
 import com.coupon.demo.dto.CouponDTO;
 import com.coupon.demo.dto.ResponseDTO;
-import com.coupon.demo.entities.Company;
-import com.coupon.demo.entities.Coupon;
+import com.coupon.demo.model.entities.Coupon;
 import com.coupon.demo.facade.CompanyFacade;
-import com.coupon.demo.model.AuthRequest;
-import com.coupon.demo.model.Scope;
-import com.coupon.demo.utils.JwtUtil;
+import com.coupon.demo.service.AuthenticationService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/companies")
 public class CompanyController {
 
     private final CompanyFacade companyFacade;
-    private final JwtUtil jwtUtil;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/addcoupon")
     public ResponseEntity<ResponseDTO<Coupon>> addCoupon(@RequestBody CouponDTO couponDTO) {
@@ -81,8 +72,8 @@ public class CompanyController {
 
 
     @GetMapping("/details/coupons")
-    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCompanyCoupons(HttpServletRequest request) {
-        Long companyID = jwtUtil.extractID.apply(request.getHeader("authorization"));
+    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCompanyCoupons() {
+        Long companyID = authenticationService.getPrincipalID();
         ResponseDTO<List<CouponDTO>> responseDTO = companyFacade.getCompanyCoupons(companyID);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
@@ -97,12 +88,12 @@ public class CompanyController {
         }
     }
 
-    @GetMapping("/details/coupons/category/{categoryID}")
-    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCompanyCouponsByMaxPrice(HttpServletRequest request,
-            @PathVariable Long categoryID) {
-        Long companyID = jwtUtil.extractID.apply(request.getHeader("authorization"));
+    @GetMapping("/details/coupons/category/{categoryName}")
+    public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCompanyCouponsByMaxPrice(
+            @PathVariable String categoryName) {
+        Long companyID = authenticationService.getPrincipalID();
         ResponseDTO<List<CouponDTO>> responseDTO =
-                companyFacade.getCompanyCoupons(categoryID, companyID);
+                companyFacade.getCompanyCoupons(categoryName, companyID);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
                     .ok()
@@ -118,8 +109,8 @@ public class CompanyController {
 
     @GetMapping("/details/coupons/price/{maxprice}")
     public ResponseEntity<ResponseDTO<List<CouponDTO>>> getCompanyCouponsByMaxPrice(
-            HttpServletRequest request, @PathVariable double maxprice) {
-        Long companyID = jwtUtil.extractID.apply(request.getHeader("authorization"));
+            @PathVariable double maxprice) {
+        Long companyID = authenticationService.getPrincipalID();
         ResponseDTO<List<CouponDTO>> responseDTO = companyFacade.getCompanyCoupons(maxprice,
                 companyID);
         if (responseDTO.isSuccess()) {
@@ -137,7 +128,7 @@ public class CompanyController {
 
     @GetMapping("/details")
     public ResponseEntity<ResponseDTO<CompanyDTO>> getCompanyDetails(HttpServletRequest request) {
-        Long companyID = jwtUtil.extractID.apply(request.getHeader("authorization"));
+        Long companyID = authenticationService.getPrincipalID();
         ResponseDTO<CompanyDTO> responseDTO = companyFacade.getCompanyDetails(companyID);
         if (responseDTO.isSuccess()) {
             return ResponseEntity
@@ -151,6 +142,4 @@ public class CompanyController {
                     .body(responseDTO);
         }
     }
-
-
 }

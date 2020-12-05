@@ -1,16 +1,14 @@
 package com.coupon.demo.service.dao;
 
-import com.coupon.demo.entities.Category;
+import com.coupon.demo.model.entities.Category;
 import com.coupon.demo.exception.AlreadyExists;
 import com.coupon.demo.exception.MissingAttributes;
-import com.coupon.demo.exception.MissingCategoryType;
 import com.coupon.demo.exception.NotFound;
 import com.coupon.demo.repositories.CategoryRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -30,12 +28,10 @@ public class CategoryDao {
 
     public Category updateCategory(Category category) {
         checkNull(category);
-        categoryRepository.findAllByCategory(category.getCategory()).ifPresent(categoriesByCategory -> {
-            categoriesByCategory.forEach(oneCategory -> {
-                if (!oneCategory.getId().equals(category.getId())) {
-                    throw new AlreadyExists("Category already exists: " + category.getCategory());
-                }
-            });
+        categoryRepository.findByCategory(category.getCategory()).ifPresent(category1 -> {
+            if (!category1.getId().equals(category.getId())) {
+                throw new AlreadyExists("Category already exists: " + category.getCategory());
+            }
         });
         return categoryRepository.save(category);
     }
