@@ -47,9 +47,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     /**
      * Overriding AuthenticationManagerBuilder to specify which UserDetailsService to use
      * for fetching the appropriate UserDetails from the database for authentication purposes.
-     * @param auth used for .authenticate() method to run over all the userDetailsService
-     *             until the authenticated user is found and matches it's passwords and
-     *             authorities.
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
@@ -67,17 +64,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     /**
      * Spring Security configuration
-     * 1 permitAll antMatcher for authentication and JWT creation.
-     * 3 secured, authority based antMatchers.
-     * .exceptionHandling() configures the @Bean authenticationEntryPoint() for authentication
-     * exceptions
-     *  .exceptionHandling() configures the @Bean accessDeniedHandler() for all AID exceptions with
-     *  already-authenticated users.
+     * /public/** is allowed through the servlet without authentication.
+     * Other Ant-Matcher's are authentication + authorization based on a JWT.
+     * Stateless session creation is used with a JWT filter.
      *
-     * addFilterBefore(jwtFilter) configures jwtFilter to be used before UsernamePasswordAuthenticationFilter
-     * The appropriate place to define JWT based authentication and authorization to allow
-     * and define principals through the system before proceeding with the rest of the filter
-     * chain line.
+     * addFilterBefore(jwtFilter) adds a JWT-Filter before UsernamePasswordAuthenticationFilter so to handle authentication and authorization
+     * through JWTs.
      */
     @Override
     protected void configure(HttpSecurity http) {
@@ -106,7 +98,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     /**
      * Configuring which passwordEncoder Spring Security will use to encode passwords.
-     * Also used for hashing passwords before updating or adding new principals.
+     * Also used for hashing passwords before updating or adding new database info.
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -115,8 +107,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 
     /**
-     * Implementing an accessDeniedHandler to take over Spring Security's default 403
-     * To be used in cases where the principal is not anonymous but doesn't have authority.
+     * Implemented to write custom AccessIsDenied exceptions.
      */
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
@@ -131,7 +122,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * Implemented bean to manually handle AuthenticationExceptions
+     * Implemented to write custom AuthenticationExceptions.
      * Sends a 401(unauthorized) on bad/no credentials
      * Sends a 403 on any other exception
      */
@@ -183,7 +174,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 
     /**
-     * AuthenticationManager bean is exposed to allow attempt authentication.
+     * AuthenticationManager bean for authenticating tokens inside AuthenticationService class.
      */
     @Bean
     @Override

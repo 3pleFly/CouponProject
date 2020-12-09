@@ -36,24 +36,20 @@ public class JwtService {
     }
 
     /**
-     * Calling findId() to fetch the authRequest's ID from the database.
-     *
      * This method is called for creating a JWT out of the following:
      * Issuer: The project name("coupon~Project")
-     * ID: Which belongs to the authRequest(the principal)
-     * Subject: The authRequest's email.
+     * ID: The user's ID according to the database
+     * Subject: The user's email.
      * IssuedAt: Time right now truncated to seconds.
      * Expiration: IssuedAt + 120 days.
-     * scope: The principal's authority string.
+     * scope: The principal's authority.
      *
-     * creating secretBytes by parsing SECRET_KEY attribute value into bytes using a Base64Binary
-     * DataTypeConverter.
+     * Calling findId() to fetch the user's ID from the database.
+     * creating secretBytes by parsing SECRET_KEY into bytes using a Base64Binary parser.
      * secretBytes is used to generate a Key object using HS256 hashing algorithm.
-     *
-     *
-     * @param authRequest an Authenticated authRequest containing a username and
+     * @param authRequest an Authenticated(by this point) authRequest containing a username and
      *                    password.
-     * @param scope pertaining to the principal's authorities. Used for a custom claim.
+     * @param scope pertaining to the principal's authorities.
      * @return a JWT string.
      */
     public String encodeJwt(AuthRequest authRequest, Scope scope) {
@@ -74,9 +70,7 @@ public class JwtService {
     }
 
     /**
-     * Decoding Jwt using the SECRET_KEY that is parsed into bytes.
-     * @param jwt to extract claims out of
-     * @return Claims object from the sent jwt String.
+     * Decoding JWT using the SECRET_KEY.
      */
     public Claims decodeJwt(String jwt) {
         try {

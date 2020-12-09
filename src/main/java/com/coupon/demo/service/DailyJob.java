@@ -19,7 +19,7 @@ public class DailyJob implements Runnable {
         couponDao.getAllCoupons().forEach(coupon -> {
             if (coupon.getEndDate().isBefore(LocalDate.now())) {
                 log.warn("Coupon expired!" + coupon);
-//              couponDao.deleteCoupon(coupon.getId());
+              couponDao.deleteCoupon(coupon.getId());
             }
         });
     }
